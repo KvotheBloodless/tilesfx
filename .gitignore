@@ -1,5 +1,9 @@
 /.idea
 /.gradle
+/.target
+/.project
+/.settings
+/.classpath
 .DS_Store
 /build
 /src/main/resources/eu/hansolo/tilesfx/poi.fw.png

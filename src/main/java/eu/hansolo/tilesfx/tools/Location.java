@@ -16,26 +16,28 @@
 
 package eu.hansolo.tilesfx.tools;
 
-import eu.hansolo.tilesfx.Tile.TileColor;
-import eu.hansolo.tilesfx.events.LocationEvent;
-import eu.hansolo.tilesfx.events.LocationEventListener;
-import javafx.scene.paint.Color;
-import org.json.simple.JSONObject;
+import static eu.hansolo.tilesfx.tools.Helper.clamp;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static eu.hansolo.tilesfx.tools.Helper.clamp;
+import org.json.simple.JSONObject;
 
+import eu.hansolo.tilesfx.Tile.TileColor;
+import eu.hansolo.tilesfx.events.LocationEvent;
+import eu.hansolo.tilesfx.events.LocationEventListener;
+import javafx.scene.paint.Color;
 
 /**
  * Created by hansolo on 12.02.17.
  */
 public class Location {
+
     public enum CardinalDirection {
         N("North", 348.75, 11.25),
         NNE("North North-East", 11.25, 33.75),
@@ -59,180 +61,311 @@ public class Location {
         public double to;
 
         CardinalDirection(final String DIRECTION, final double FROM, final double TO) {
+
             direction = DIRECTION;
-            from      = FROM;
-            to        = TO;
+            from = FROM;
+            to = TO;
+        }
+
+        public static List<CardinalDirection> list() {
+
+            List<CardinalDirection> list = new ArrayList<>();
+
+            list.add(N);
+            list.add(NNE);
+            list.add(NE);
+            list.add(ENE);
+            list.add(E);
+            list.add(ESE);
+            list.add(SE);
+            list.add(SSE);
+            list.add(S);
+            list.add(SSW);
+            list.add(SW);
+            list.add(WSW);
+            list.add(W);
+            list.add(WNW);
+            list.add(NW);
+            list.add(NNW);
+
+            return list;
         }
     }
-    private String                      name;
-    private Instant                     timestamp;
-    private double                      latitude;
-    private double                      longitude;
-    private double                      altitude;
-    private String                      info;
-    private Color                       color;
-    private int                         zoomLevel;
-    private List<LocationEventListener> listenerList;
 
+    private String name;
+    private Instant timestamp;
+    private double latitude;
+    private double longitude;
+    private double altitude;
+    private String info;
+    private Color color;
+    private int zoomLevel;
+    private List<LocationEventListener> listenerList;
 
     // ******************** Constructors **************************************
     public Location() {
+
         this(0, 0, 0, Instant.now(), "", "", TileColor.BLUE.color);
     }
+
     public Location(final double LATITUDE, final double LONGITUDE) {
+
         this(LATITUDE, LONGITUDE, 0, Instant.now(), "", "", TileColor.BLUE.color);
     }
+
     public Location(final double LATITUDE, final double LONGITUDE, final String NAME) {
-        this(LATITUDE, LONGITUDE, 0, Instant.now() ,NAME, "", TileColor.BLUE.color);
+
+        this(LATITUDE, LONGITUDE, 0, Instant.now(), NAME, "", TileColor.BLUE.color);
     }
+
     public Location(final double LATITUDE, final double LONGITUDE, final String NAME, final Color COLOR) {
-        this(LATITUDE, LONGITUDE, 0, Instant.now() ,NAME, "", COLOR);
+
+        this(LATITUDE, LONGITUDE, 0, Instant.now(), NAME, "", COLOR);
     }
+
     public Location(final double LATITUDE, final double LONGITUDE, final String NAME, final String INFO) {
-        this(LATITUDE, LONGITUDE, 0, Instant.now() ,NAME, INFO, TileColor.BLUE.color);
+
+        this(LATITUDE, LONGITUDE, 0, Instant.now(), NAME, INFO, TileColor.BLUE.color);
     }
+
     public Location(final double LATITUDE, final double LONGITUDE, final String NAME, final String INFO, final Color COLOR) {
-        this(LATITUDE, LONGITUDE, 0, Instant.now() ,NAME, INFO, COLOR);
+
+        this(LATITUDE, LONGITUDE, 0, Instant.now(), NAME, INFO, COLOR);
     }
+
     public Location(final double LATITUDE, final double LONGITUDE, final double ALTITUDE, final String NAME) {
+
         this(LATITUDE, LONGITUDE, ALTITUDE, Instant.now(), NAME, "", TileColor.BLUE.color);
     }
+
     public Location(final double LATITUDE, final double LONGITUDE, final double ALTITUDE, final Instant TIMESTAMP, final String NAME) {
+
         this(LATITUDE, LONGITUDE, ALTITUDE, TIMESTAMP, NAME, "", TileColor.BLUE.color);
     }
-    public Location(final double LATITUDE, final double LONGITUDE, final double ALTITUDE, final Instant TIMESTAMP, final String NAME, final String INFO, final Color COLOR) {
-        name         = NAME;
-        latitude     = LATITUDE;
-        longitude    = LONGITUDE;
-        altitude     = ALTITUDE;
-        timestamp    = TIMESTAMP;
-        info         = INFO;
-        color        = COLOR;
-        zoomLevel    = 15;
+
+    public Location(final double LATITUDE, final double LONGITUDE, final double ALTITUDE, final Instant TIMESTAMP, final String NAME,
+            final String INFO, final Color COLOR) {
+
+        name = NAME;
+        latitude = LATITUDE;
+        longitude = LONGITUDE;
+        altitude = ALTITUDE;
+        timestamp = TIMESTAMP;
+        info = INFO;
+        color = COLOR;
+        zoomLevel = 15;
         listenerList = new CopyOnWriteArrayList<>();
     }
 
-
     // ******************** Methods *******************************************
-    public String getName() { return name; }
-    public void setName(final String NAME) { name = NAME; }
+    public String getName() {
 
-    public Instant getTimestamp() { return timestamp; }
-    public long getTimestampInSeconds() { return timestamp.getEpochSecond(); }
-    public void setTimestamp(final Instant TIMESTAMP) { timestamp = TIMESTAMP; }
+        return name;
+    }
 
-    public double getLatitude() { return latitude; }
+    public void setName(final String NAME) {
+
+        name = NAME;
+    }
+
+    public Instant getTimestamp() {
+
+        return timestamp;
+    }
+
+    public long getTimestampInSeconds() {
+
+        return timestamp.getEpochSecond();
+    }
+
+    public void setTimestamp(final Instant TIMESTAMP) {
+
+        timestamp = TIMESTAMP;
+    }
+
+    public double getLatitude() {
+
+        return latitude;
+    }
+
     public void setLatitude(final double LATITUDE) {
+
         latitude = LATITUDE;
         fireLocationEvent(new LocationEvent(Location.this));
     }
 
-    public double getLongitude() { return longitude; }
+    public double getLongitude() {
+
+        return longitude;
+    }
+
     public void setLongitude(final double LONGITUDE) {
+
         longitude = LONGITUDE;
         fireLocationEvent(new LocationEvent(Location.this));
     }
 
-    public double getAltitude() { return altitude; }
+    public double getAltitude() {
+
+        return altitude;
+    }
+
     public void setAltitude(final double ALTITUDE) {
+
         altitude = ALTITUDE;
         fireLocationEvent(new LocationEvent(Location.this));
     }
 
-    public String getInfo() { return info; }
-    public void setInfo(final String INFO) { info = INFO; }
+    public String getInfo() {
 
-    public Color getColor() { return color; }
+        return info;
+    }
+
+    public void setInfo(final String INFO) {
+
+        info = INFO;
+    }
+
+    public Color getColor() {
+
+        return color;
+    }
+
     public void setColor(final Color COLOR) {
+
         color = COLOR;
         fireLocationEvent(new LocationEvent(Location.this));
     }
 
-    public ZonedDateTime getZonedDateTime() { return getZonedDateTime(ZoneId.systemDefault()); }
-    public ZonedDateTime getZonedDateTime(final ZoneId ZONE_ID) { return ZonedDateTime.ofInstant(timestamp, ZONE_ID); }
+    public ZonedDateTime getZonedDateTime() {
 
-    public int getZoomLevel() { return zoomLevel; }
+        return getZonedDateTime(ZoneId.systemDefault());
+    }
+
+    public ZonedDateTime getZonedDateTime(final ZoneId ZONE_ID) {
+
+        return ZonedDateTime.ofInstant(timestamp, ZONE_ID);
+    }
+
+    public int getZoomLevel() {
+
+        return zoomLevel;
+    }
+
     public void setZoomLevel(final int LEVEL) {
+
         zoomLevel = clamp(0, 17, LEVEL);
         fireLocationEvent(new LocationEvent(Location.this));
     }
 
-    public void update(final double LATITUDE, final double LONGITUDE) { set(LATITUDE, LONGITUDE); }
+    public void update(final double LATITUDE, final double LONGITUDE) {
+
+        set(LATITUDE, LONGITUDE);
+    }
 
     public void set(final double LATITUDE, final double LONGITUDE) {
-        latitude  = LATITUDE;
+
+        latitude = LATITUDE;
         longitude = LONGITUDE;
         timestamp = Instant.now();
         fireLocationEvent(new LocationEvent(Location.this));
     }
+
     public void set(final double LATITUDE, final double LONGITUDE, final double ALTITUDE, final Instant TIMESTAMP) {
-        latitude  = LATITUDE;
+
+        latitude = LATITUDE;
         longitude = LONGITUDE;
-        altitude  = ALTITUDE;
+        altitude = ALTITUDE;
         timestamp = TIMESTAMP;
         fireLocationEvent(new LocationEvent(Location.this));
     }
+
     public void set(final double LATITUDE, final double LONGITUDE, final double ALTITUDE, final Instant TIMESTAMP, final String INFO) {
-        latitude    = LATITUDE;
-        longitude   = LONGITUDE;
-        altitude    = ALTITUDE;
-        timestamp   = TIMESTAMP;
-        info        = INFO;
+
+        latitude = LATITUDE;
+        longitude = LONGITUDE;
+        altitude = ALTITUDE;
+        timestamp = TIMESTAMP;
+        info = INFO;
         fireLocationEvent(new LocationEvent(Location.this));
     }
+
     public void set(final Location LOCATION) {
-        name      = LOCATION.getName();
-        latitude  = LOCATION.getLatitude();
+
+        name = LOCATION.getName();
+        latitude = LOCATION.getLatitude();
         longitude = LOCATION.getLongitude();
-        altitude  = LOCATION.getAltitude();
+        altitude = LOCATION.getAltitude();
         timestamp = LOCATION.getTimestamp();
-        info      = LOCATION.info;
-        color     = LOCATION.getColor();
+        info = LOCATION.info;
+        color = LOCATION.getColor();
         zoomLevel = LOCATION.getZoomLevel();
         fireLocationEvent(new LocationEvent(Location.this));
     }
 
-    public double getDistanceTo(final Location LOCATION) { return calcDistanceInMeter(this, LOCATION); }
+    public double getDistanceTo(final Location LOCATION) {
 
-    public boolean isWithinRangeOf(final Location LOCATION, final double METERS) { return getDistanceTo(LOCATION) < METERS; }
+        return calcDistanceInMeter(this, LOCATION);
+    }
 
-    public double calcDistanceInMeter(final Location P1, final Location P2) {
+    public boolean isWithinRangeOf(final Location LOCATION, final double METERS) {
+
+        return getDistanceTo(LOCATION) < METERS;
+    }
+
+    public static double calcDistanceInMeter(final Location P1, final Location P2) {
+
         return calcDistanceInMeter(P1.getLatitude(), P1.getLongitude(), P2.getLatitude(), P2.getLongitude());
     }
-    public double calcDistanceInKilometer(final Location P1, final Location P2) {
+
+    public static double calcDistanceInKilometer(final Location P1, final Location P2) {
+
         return calcDistanceInMeter(P1, P2) / 1000.0;
     }
-    public double calcDistanceInMeter(final double LAT_1, final double LON_1, final double LAT_2, final double LON_2) {
-        final double EARTH_RADIUS      = 6_371_000; // m
-        final double LAT_1_RADIANS     = Math.toRadians(LAT_1);
-        final double LAT_2_RADIANS     = Math.toRadians(LAT_2);
-        final double DELTA_LAT_RADIANS = Math.toRadians(LAT_2-LAT_1);
-        final double DELTA_LON_RADIANS = Math.toRadians(LON_2-LON_1);
 
-        final double A = Math.sin(DELTA_LAT_RADIANS * 0.5) * Math.sin(DELTA_LAT_RADIANS * 0.5) + Math.cos(LAT_1_RADIANS) * Math.cos(LAT_2_RADIANS) * Math.sin(DELTA_LON_RADIANS * 0.5) * Math.sin(DELTA_LON_RADIANS * 0.5);
-        final double C = 2 * Math.atan2(Math.sqrt(A), Math.sqrt(1-A));
+    public static double calcDistanceInMeter(final double LAT_1, final double LON_1, final double LAT_2, final double LON_2) {
+
+        final double EARTH_RADIUS = 6_371_000; // m
+        final double LAT_1_RADIANS = Math.toRadians(LAT_1);
+        final double LAT_2_RADIANS = Math.toRadians(LAT_2);
+        final double DELTA_LAT_RADIANS = Math.toRadians(LAT_2 - LAT_1);
+        final double DELTA_LON_RADIANS = Math.toRadians(LON_2 - LON_1);
+
+        final double A = Math.sin(DELTA_LAT_RADIANS * 0.5) * Math.sin(DELTA_LAT_RADIANS * 0.5)
+                + Math.cos(LAT_1_RADIANS) * Math.cos(LAT_2_RADIANS) * Math.sin(DELTA_LON_RADIANS * 0.5) * Math.sin(DELTA_LON_RADIANS * 0.5);
+        final double C = 2 * Math.atan2(Math.sqrt(A), Math.sqrt(1 - A));
 
         final double DISTANCE = EARTH_RADIUS * C;
 
         return DISTANCE;
     }
 
-    public double getAltitudeDifferenceInMeter(final Location LOCATION) { return (altitude - LOCATION.getAltitude()); }
+    public double getAltitudeDifferenceInMeter(final Location LOCATION) {
+
+        return (altitude - LOCATION.getAltitude());
+    }
 
     public double getBearingTo(final Location LOCATION) {
+
         return calcBearingInDegree(getLatitude(), getLongitude(), LOCATION.getLatitude(), LOCATION.getLongitude());
     }
+
     public double getBearingTo(final double LATITUDE, final double LONGITUDE) {
+
         return calcBearingInDegree(getLatitude(), getLongitude(), LATITUDE, LONGITUDE);
     }
 
-    public boolean isZero() { return Double.compare(latitude, 0d) == 0 && Double.compare(longitude, 0d) == 0; }
+    public boolean isZero() {
+
+        return Double.compare(latitude, 0d) == 0 && Double.compare(longitude, 0d) == 0;
+    }
 
     public double calcBearingInDegree(final double LAT_1, final double LON_1, final double LAT_2, final double LON_2) {
-        double lat1     = Math.toRadians(LAT_1);
-        double lon1     = Math.toRadians(LON_1);
-        double lat2     = Math.toRadians(LAT_2);
-        double lon2     = Math.toRadians(LON_2);
+
+        double lat1 = Math.toRadians(LAT_1);
+        double lon1 = Math.toRadians(LON_1);
+        double lat2 = Math.toRadians(LAT_2);
+        double lon2 = Math.toRadians(LON_2);
         double deltaLon = lon2 - lon1;
         double deltaPhi = Math.log(Math.tan(lat2 * 0.5 + Math.PI * 0.25) / Math.tan(lat1 * 0.5 + Math.PI * 0.25));
         if (Math.abs(deltaLon) > Math.PI) {
@@ -246,29 +379,79 @@ public class Location {
         return bearing;
     }
 
-    public String getCardinalDirectionFromBearing(final double BEARING) {
-        double bearing = BEARING % 360.0;
+    public static CardinalDirection getCardinalDirectionFromBearing(final double BEARING) {
+
+        final double bearing = BEARING % 360.0;
+
         for (CardinalDirection cardinalDirection : CardinalDirection.values()) {
             if (Double.compare(bearing, cardinalDirection.from) >= 0 && Double.compare(bearing, cardinalDirection.to) < 0) {
-                return cardinalDirection.direction;
+                return cardinalDirection;
             }
         }
-        return "";
+
+        return CardinalDirection.N;
     }
 
+    // function ComputeLatLng(vLatitude, vLongitude, vAngle, vDistance) {
+
+    public static Location translateMeters(final Location location, double meters, double bearing) {
+
+        meters /= 1000;
+
+        meters /= 6371;
+        bearing = toRadians(bearing);
+
+        double vLat1 = toRadians(location.getLatitude());
+        double vLng1 = toRadians(location.getLongitude());
+
+        double vNewLat = Math.asin(Math.sin(vLat1) * Math.cos(meters) +
+                Math.cos(vLat1) * Math.sin(meters) * Math.cos(bearing));
+
+        double vNewLng = vLng1 + Math.atan2(Math.sin(bearing) * Math.sin(meters) * Math.cos(vLat1),
+                Math.cos(meters) - Math.sin(vLat1) * Math.sin(vNewLat));
+
+        return new Location(toDeg(vNewLat), toDeg(vNewLng));
+    }
+
+    public static double toRadians(final double degrees) {
+
+        return degrees * Math.PI / 180;
+    }
+
+    public static double toDeg(final double radians) {
+
+        return radians * 180 / Math.PI;
+    }
 
     // ******************** Event Handling ************************************
-    public void setOnLocationEvent(final LocationEventListener LISTENER) { addLocationEventListener(LISTENER); }
-    public void addLocationEventListener(final LocationEventListener LISTENER) { if (!listenerList.contains(LISTENER)) listenerList.add(LISTENER); }
-    public void removeLocationEventListener(final LocationEventListener LISTENER) { if (listenerList.contains(LISTENER)) listenerList.remove(LISTENER); }
+    public void setOnLocationEvent(final LocationEventListener LISTENER) {
 
-    public void fireLocationEvent(final LocationEvent EVENT) {
-        for (LocationEventListener listener : listenerList) { listener.onLocationEvent(EVENT); }
+        addLocationEventListener(LISTENER);
     }
 
+    public void addLocationEventListener(final LocationEventListener LISTENER) {
+
+        if (!listenerList.contains(LISTENER))
+            listenerList.add(LISTENER);
+    }
+
+    public void removeLocationEventListener(final LocationEventListener LISTENER) {
+
+        if (listenerList.contains(LISTENER))
+            listenerList.remove(LISTENER);
+    }
+
+    public void fireLocationEvent(final LocationEvent EVENT) {
+
+        for (LocationEventListener listener : listenerList) {
+            listener.onLocationEvent(EVENT);
+        }
+    }
 
     // ******************** Misc **********************************************
-    @Override public boolean equals(final Object OBJECT) {
+    @Override
+    public boolean equals(final Object OBJECT) {
+
         if (OBJECT instanceof Location) {
             final Location LOCATION = (Location) OBJECT;
             return (Double.compare(latitude, LOCATION.latitude) == 0 &&
@@ -280,6 +463,7 @@ public class Location {
     }
 
     public JSONObject toJSON() {
+
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("nam", name);
         jsonObject.put("tst", new Long(timestamp.getEpochSecond()));
@@ -293,22 +477,43 @@ public class Location {
     }
 
     public String toJSONString() {
+
         return toJSON().toJSONString();
     }
 
-    @Override public String toString() {
-        return new StringBuilder().append("Name     : ").append(name).append("\n")
-                                  .append("Timestamp: ").append(timestamp).append("\n")
-                                  .append("Latitude : ").append(latitude).append("\n")
-                                  .append("Longitude: ").append(longitude).append("\n")
-                                  .append("Altitude : ").append(String.format(Locale.US, "%.1f", altitude)).append(" m\n")
-                                  .append("Info     : ").append(info).append("\n")
-                                  .append("Color    : ").append(color.toString().replace("0x", "#")).append("\n")
-                                  .append("ZoomLevel: ").append(zoomLevel).append("\n")
-                                  .toString();
+    @Override
+    public String toString() {
+
+        return new StringBuilder().append("Name     : ")
+                .append(name)
+                .append("\n")
+                .append("Timestamp: ")
+                .append(timestamp)
+                .append("\n")
+                .append("Latitude : ")
+                .append(latitude)
+                .append("\n")
+                .append("Longitude: ")
+                .append(longitude)
+                .append("\n")
+                .append("Altitude : ")
+                .append(String.format(Locale.US, "%.1f", altitude))
+                .append(" m\n")
+                .append("Info     : ")
+                .append(info)
+                .append("\n")
+                .append("Color    : ")
+                .append(color.toString().replace("0x", "#"))
+                .append("\n")
+                .append("ZoomLevel: ")
+                .append(zoomLevel)
+                .append("\n")
+                .toString();
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
+
         int result;
         long temp;
         result = name != null ? name.hashCode() : 0;

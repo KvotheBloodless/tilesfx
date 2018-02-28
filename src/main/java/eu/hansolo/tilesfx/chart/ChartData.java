@@ -16,6 +16,18 @@
 
 package eu.hansolo.tilesfx.chart;
 
+import static eu.hansolo.tilesfx.tools.Helper.clamp;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.events.ChartDataEvent;
 import eu.hansolo.tilesfx.events.ChartDataEvent.EventType;
@@ -28,111 +40,160 @@ import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.DoublePropertyBase;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.util.Duration;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import static eu.hansolo.tilesfx.tools.Helper.clamp;
-
 
 /**
  * Created by hansolo on 17.02.17.
  */
 public class ChartData implements Comparable<ChartData> {
-    private final ChartDataEvent               UPDATE_EVENT   = new ChartDataEvent(EventType.UPDATE, ChartData.this);
-    private final ChartDataEvent               FINISHED_EVENT = new ChartDataEvent(EventType.FINISHED, ChartData.this);
-    private       String                       name;
-    private       double                       value;
-    private       double                       oldValue;
-    private       Color                        fillColor;
-    private       Color                        strokeColor;
-    private       Color                        textColor;
-    private       Instant                      timestamp;
-    private       Location                     location;
-    private       boolean                      animated;
-    private       long                         animationDuration;
-    private       List<ChartDataEventListener> listenerList = new CopyOnWriteArrayList<>();
-    private       DoubleProperty               currentValue;
-    private       Timeline                     timeline;
 
+    private final ChartDataEvent UPDATE_EVENT = new ChartDataEvent(EventType.UPDATE, ChartData.this);
+    private final ChartDataEvent FINISHED_EVENT = new ChartDataEvent(EventType.FINISHED, ChartData.this);
+    private String name;
+    private double value;
+    private double oldValue;
+    private Color fillColor;
+    private Color strokeColor;
+    private Color textColor;
+    private Instant timestamp;
+    private Location location;
+    private boolean animated;
+    private long animationDuration;
+    private List<ChartDataEventListener> listenerList = new CopyOnWriteArrayList<>();
+    private DoubleProperty currentValue;
+    private Timeline timeline;
+    private List<Annotation> annotations;
 
     // ******************** Constructors **************************************
     public ChartData() {
+
         this("", 0, Tile.BLUE, Color.TRANSPARENT, Tile.FOREGROUND, Instant.now(), true, 800);
     }
-    public ChartData(final String NAME) {
-        this(NAME, 0, Tile.BLUE, Color.TRANSPARENT, Tile.FOREGROUND, Instant.now(), true, 800);
+
+    public ChartData(final String NAME, final Annotation... annotations) {
+
+        this(NAME, 0, Tile.BLUE, Color.TRANSPARENT, Tile.FOREGROUND, Instant.now(), true, 800, annotations);
     }
-    public ChartData(double VALUE) {
-        this("", VALUE, Tile.BLUE, Color.TRANSPARENT, Tile.FOREGROUND, Instant.now(), true, 800);
+
+    public ChartData(double VALUE, final Annotation... annotations) {
+
+        this("", VALUE, Tile.BLUE, Color.TRANSPARENT, Tile.FOREGROUND, Instant.now(), true, 800, annotations);
     }
-    public ChartData(final double VALUE, final Instant TIMESTAMP) {
-        this("", VALUE, Tile.BLUE, Color.TRANSPARENT, Tile.FOREGROUND, TIMESTAMP, true, 800);
+
+    public ChartData(final double VALUE, final Instant TIMESTAMP, final Annotation... annotations) {
+
+        this("", VALUE, Tile.BLUE, Color.TRANSPARENT, Tile.FOREGROUND, TIMESTAMP, true, 800, annotations);
     }
-    public ChartData(final String NAME, final Instant TIMESTAMP) {
-        this(NAME, 0, Tile.BLUE, Color.TRANSPARENT, Tile.FOREGROUND, TIMESTAMP, true, 800);
+
+    public ChartData(final String NAME, final Instant TIMESTAMP, final Annotation... annotations) {
+
+        this(NAME, 0, Tile.BLUE, Color.TRANSPARENT, Tile.FOREGROUND, TIMESTAMP, true, 800, annotations);
     }
-    public ChartData(final String NAME, final Color FILL_COLOR) {
-        this(NAME, 0, FILL_COLOR, Color.TRANSPARENT, Tile.FOREGROUND, Instant.now(), true, 800);
+
+    public ChartData(final String NAME, final Color FILL_COLOR, final Annotation... annotations) {
+
+        this(NAME, 0, FILL_COLOR, Color.TRANSPARENT, Tile.FOREGROUND, Instant.now(), true, 800, annotations);
     }
-    public ChartData(final String NAME, final double VALUE) {
-        this(NAME, VALUE, Tile.BLUE, Color.TRANSPARENT, Tile.FOREGROUND, Instant.now(), true, 800);
+
+    public ChartData(final String NAME, final double VALUE, final Annotation... annotations) {
+
+        this(NAME, VALUE, Tile.BLUE, Color.TRANSPARENT, Tile.FOREGROUND, Instant.now(), true, 800, annotations);
     }
-    public ChartData(final String NAME, final double VALUE, final Instant TIMESTAMP) {
-        this(NAME, VALUE, Tile.BLUE, Color.TRANSPARENT, Tile.FOREGROUND, TIMESTAMP, true, 800);
+
+    public ChartData(final String NAME, final double VALUE, final Instant TIMESTAMP, final Annotation... annotations) {
+
+        this(NAME, VALUE, Tile.BLUE, Color.TRANSPARENT, Tile.FOREGROUND, TIMESTAMP, true, 800, annotations);
     }
-    public ChartData(final String NAME, final double VALUE, final Color FILL_COLOR) {
-        this(NAME, VALUE, FILL_COLOR, Color.TRANSPARENT, Tile.FOREGROUND, Instant.now(), true, 800);
+
+    public ChartData(final String NAME, final double VALUE, final Color FILL_COLOR, final Annotation... annotations) {
+
+        this(NAME, VALUE, FILL_COLOR, Color.TRANSPARENT, Tile.FOREGROUND, Instant.now(), true, 800, annotations);
     }
-    public ChartData(final String NAME, final double VALUE, final Color FILL_COLOR, final Instant TIMESTAMP) {
-        this(NAME, VALUE, FILL_COLOR, Color.TRANSPARENT, Tile.FOREGROUND, TIMESTAMP, true, 800);
+
+    public ChartData(final String NAME, final double VALUE, final Color FILL_COLOR, final Instant TIMESTAMP,
+            final Annotation... annotations) {
+
+        this(NAME, VALUE, FILL_COLOR, Color.TRANSPARENT, Tile.FOREGROUND, TIMESTAMP, true, 800, annotations);
     }
-    public ChartData(final String NAME, final double VALUE, final Color FILL_COLOR, final Instant TIMESTAMP, final boolean ANIMATED, final long ANIMATION_DURATION) {
-        this(NAME, VALUE, FILL_COLOR, Color.TRANSPARENT, Tile.FOREGROUND, TIMESTAMP, ANIMATED, ANIMATION_DURATION);
+
+    public ChartData(final String NAME, final double VALUE, final Color FILL_COLOR, final Instant TIMESTAMP, final boolean ANIMATED,
+            final long ANIMATION_DURATION, final Annotation... annotations) {
+
+        this(NAME, VALUE, FILL_COLOR, Color.TRANSPARENT, Tile.FOREGROUND, TIMESTAMP, ANIMATED, ANIMATION_DURATION, annotations);
     }
-    public ChartData(final String NAME, final double VALUE, final Color FILL_COLOR, final Color STROKE_COLOR, final Instant TIMESTAMP, final boolean ANIMATED, final long ANIMATION_DURATION) {
-        this(NAME, VALUE, FILL_COLOR, STROKE_COLOR, Tile.FOREGROUND, TIMESTAMP, ANIMATED, ANIMATION_DURATION);
+
+    public ChartData(final String NAME, final double VALUE, final Color FILL_COLOR, final Color STROKE_COLOR, final Instant TIMESTAMP,
+            final boolean ANIMATED, final long ANIMATION_DURATION, final Annotation... annotations) {
+
+        this(NAME, VALUE, FILL_COLOR, STROKE_COLOR, Tile.FOREGROUND, TIMESTAMP, ANIMATED, ANIMATION_DURATION, annotations);
     }
-    public ChartData(final String NAME, final double VALUE, final Color FILL_COLOR, final Color STROKE_COLOR, final Color TEXT_COLOR, final Instant TIMESTAMP, final boolean ANIMATED, final long ANIMATION_DURATION) {
-        name              = NAME;
-        value             = VALUE;
-        oldValue          = 0;
-        fillColor         = FILL_COLOR;
-        strokeColor       = STROKE_COLOR;
-        textColor         = TEXT_COLOR;
-        timestamp         = TIMESTAMP;
-        currentValue      = new DoublePropertyBase(value) {
-            @Override protected void invalidated() {
+
+    public ChartData(final String NAME, final double VALUE, final Color FILL_COLOR, final Color STROKE_COLOR, final Color TEXT_COLOR,
+            final Instant TIMESTAMP, final boolean ANIMATED, final long ANIMATION_DURATION, final Annotation... annotations) {
+
+        name = NAME;
+        value = VALUE;
+        oldValue = 0;
+        fillColor = FILL_COLOR;
+        strokeColor = STROKE_COLOR;
+        textColor = TEXT_COLOR;
+        timestamp = TIMESTAMP;
+        this.annotations = new ArrayList<Annotation>(annotations.length);
+        for (Annotation annotation : annotations)
+            this.annotations.add(annotation);
+
+        currentValue = new DoublePropertyBase(value) {
+
+            @Override
+            protected void invalidated() {
+
                 oldValue = value;
-                value    = get();
+                value = get();
                 fireChartDataEvent(UPDATE_EVENT);
             }
-            @Override public Object getBean() { return ChartData.this; }
-            @Override public String getName() { return "currentValue"; }
+
+            @Override
+            public Object getBean() {
+
+                return ChartData.this;
+            }
+
+            @Override
+            public String getName() {
+
+                return "currentValue";
+            }
         };
-        timeline          = new Timeline();
-        animated          = ANIMATED;
+        timeline = new Timeline();
+        animated = ANIMATED;
         animationDuration = ANIMATION_DURATION;
 
         timeline.setOnFinished(e -> fireChartDataEvent(FINISHED_EVENT));
     }
 
-
     // ******************** Methods *******************************************
-    public String getName() { return name; }
+    public String getName() {
+
+        return name;
+    }
+
     public void setName(final String NAME) {
+
         name = NAME;
-        if (null != location) { location.setName(NAME); }
+        if (null != location) {
+            location.setName(NAME);
+        }
         fireChartDataEvent(UPDATE_EVENT);
     }
 
-    public double getValue() { return value; }
+    public double getValue() {
+
+        return value;
+    }
+
     public void setValue(final double VALUE) {
+
         if (animated) {
             timeline.stop();
             KeyValue kv1 = new KeyValue(currentValue, value, Interpolator.EASE_BOTH);
@@ -143,78 +204,294 @@ public class ChartData implements Comparable<ChartData> {
             timeline.play();
         } else {
             oldValue = value;
-            value    = VALUE;
+            value = VALUE;
             fireChartDataEvent(FINISHED_EVENT);
         }
     }
 
-    public double getOldValue() { return oldValue; }
+    public double getOldValue() {
 
-    public Color getFillColor() { return fillColor; }
+        return oldValue;
+    }
+
+    public Color getFillColor() {
+
+        return fillColor;
+    }
+
     public void setFillColor(final Color COLOR) {
+
         fillColor = COLOR;
-        if (null != location) { location.setColor(COLOR); }
+        if (null != location) {
+            location.setColor(COLOR);
+        }
         fireChartDataEvent(UPDATE_EVENT);
     }
 
-    public Color getStrokeColor() { return strokeColor; }
+    public Color getStrokeColor() {
+
+        return strokeColor;
+    }
+
     public void setStrokeColor(final Color COLOR) {
+
         strokeColor = COLOR;
         fireChartDataEvent(UPDATE_EVENT);
     }
 
-    public Color getTextColor() { return textColor; }
+    public Color getTextColor() {
+
+        return textColor;
+    }
+
     public void setTextColor(final Color COLOR) {
+
         textColor = COLOR;
         fireChartDataEvent(UPDATE_EVENT);
     }
 
-    public Instant getTimestamp() { return timestamp; }
+    public Instant getTimestamp() {
+
+        return timestamp;
+    }
+
     public void setTimestamp(final Instant TIMESTAMP) {
+
         timestamp = TIMESTAMP;
         fireChartDataEvent(UPDATE_EVENT);
     }
 
-    public Location getLocation() { return location; }
+    public Location getLocation() {
+
+        return location;
+    }
+
     public void setLocation(final Location LOCATION) {
+
         location = LOCATION;
         location.setName(getName());
         location.setColor(getFillColor());
         fireChartDataEvent(UPDATE_EVENT);
     }
 
-    public ZonedDateTime getTimestampAdDateTime() { return getTimestampAsDateTime(ZoneId.systemDefault()); }
-    public ZonedDateTime getTimestampAsDateTime(final ZoneId ZONE_ID) { return ZonedDateTime.ofInstant(timestamp, ZONE_ID); }
+    public ZonedDateTime getTimestampAdDateTime() {
 
-    public LocalDate getTimestampAsLocalDate() { return getTimestampAsLocalDate(ZoneId.systemDefault()); }
-    public LocalDate getTimestampAsLocalDate(final ZoneId ZONE_ID) { return getTimestampAsDateTime(ZONE_ID).toLocalDate(); }
-
-    public boolean isAnimated() { return animated; }
-    public void setAnimated(final boolean ANIMATED) { animated = ANIMATED; }
-
-    public long getAnimationDuration() { return animationDuration; }
-    public void setAnimationDuration(final long DURATION) { animationDuration = clamp(10, 10000, DURATION); }
-
-    @Override public String toString() {
-        return new StringBuilder().append("{\n")
-                                  .append("  \"name\":").append(name).append(",\n")
-                                  .append("  \"value\":").append(value).append(",\n")
-                                  .append("  \"fillColor\":").append(fillColor.toString().replace("0x", "#")).append(",\n")
-                                  .append("  \"strokeColor\":").append(strokeColor.toString().replace("0x", "#")).append(",\n")
-                                  .append("  \"timestamp\":").append(timestamp.toEpochMilli()).append(",\n")
-                                  .append("}")
-                                  .toString();
+        return getTimestampAsDateTime(ZoneId.systemDefault());
     }
 
-    @Override public int compareTo(final ChartData DATA) { return Double.compare(getValue(), DATA.getValue()); }
+    public ZonedDateTime getTimestampAsDateTime(final ZoneId ZONE_ID) {
 
+        return ZonedDateTime.ofInstant(timestamp, ZONE_ID);
+    }
+
+    public LocalDate getTimestampAsLocalDate() {
+
+        return getTimestampAsLocalDate(ZoneId.systemDefault());
+    }
+
+    public LocalDate getTimestampAsLocalDate(final ZoneId ZONE_ID) {
+
+        return getTimestampAsDateTime(ZONE_ID).toLocalDate();
+    }
+
+    public boolean isAnimated() {
+
+        return animated;
+    }
+
+    public void setAnimated(final boolean ANIMATED) {
+
+        animated = ANIMATED;
+    }
+
+    public long getAnimationDuration() {
+
+        return animationDuration;
+    }
+
+    public void setAnimationDuration(final long DURATION) {
+
+        animationDuration = clamp(10, 10000, DURATION);
+    }
+
+    public List<Annotation> getAnnotations() {
+
+        return annotations;
+    }
+
+    @Override
+    public String toString() {
+
+        return new StringBuilder().append("{\n")
+                .append("  \"name\":")
+                .append(name)
+                .append(",\n")
+                .append("  \"value\":")
+                .append(value)
+                .append(",\n")
+                .append("  \"fillColor\":")
+                .append(fillColor.toString().replace("0x", "#"))
+                .append(",\n")
+                .append("  \"strokeColor\":")
+                .append(strokeColor.toString().replace("0x", "#"))
+                .append(",\n")
+                .append("  \"timestamp\":")
+                .append(timestamp.toEpochMilli())
+                .append(",\n")
+                .append("}")
+                .toString();
+    }
+
+    @Override
+    public int compareTo(final ChartData DATA) {
+
+        return Double.compare(getValue(), DATA.getValue());
+    }
 
     // ******************** Event Handling ************************************
-    public void setOnChartDataEvent(final ChartDataEventListener LISTENER) { addChartDataEventListener(LISTENER); }
-    public void addChartDataEventListener(final ChartDataEventListener LISTENER) { if (!listenerList.contains(LISTENER)) listenerList.add(LISTENER); }
-    public void removeChartDataEventListener(final ChartDataEventListener LISTENER) { if (listenerList.contains(LISTENER)) listenerList.remove(LISTENER); }
+    public void setOnChartDataEvent(final ChartDataEventListener LISTENER) {
+
+        addChartDataEventListener(LISTENER);
+    }
+
+    public void addChartDataEventListener(final ChartDataEventListener LISTENER) {
+
+        if (!listenerList.contains(LISTENER))
+            listenerList.add(LISTENER);
+    }
+
+    public void removeChartDataEventListener(final ChartDataEventListener LISTENER) {
+
+        if (listenerList.contains(LISTENER))
+            listenerList.remove(LISTENER);
+    }
 
     public void fireChartDataEvent(final ChartDataEvent EVENT) {
-        for (ChartDataEventListener listener : listenerList) { listener.onChartDataEvent(EVENT); }
+
+        for (ChartDataEventListener listener : listenerList) {
+            listener.onChartDataEvent(EVENT);
+        }
+    }
+
+    public void clearAnnotations() {
+
+        annotations.clear();
+    }
+
+    public boolean addAnnotation(final Annotation annotation) {
+
+        return annotations.add(annotation);
+    }
+
+    public boolean removeAnnotation(final Annotation annotation) {
+
+        return annotations.remove(annotation);
+    }
+
+    public static class Annotation {
+
+        private final String text;
+        private final double value;
+        private final Optional<Font> font;
+        private final Optional<Color> fill;
+
+        protected Annotation(final String text, final double value, final Optional<Font> font, final Optional<Color> fill) {
+
+            this.text = text;
+            this.value = value;
+            this.font = font;
+            this.fill = fill;
+        }
+
+        public Optional<Font> getFont() {
+
+            return font;
+        }
+
+        public String getText() {
+
+            return text;
+        }
+
+        public double getValue() {
+
+            return value;
+        }
+
+        public Optional<Color> getFill() {
+
+            return fill;
+        }
+
+        public static Builder builder() {
+
+            return new Builder();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+
+            if (obj == this)
+                return true;
+
+            if (!(obj instanceof ChartData))
+                return false;
+
+            return (text.equals(((ChartData.Annotation) obj).text) && value == ((ChartData.Annotation) obj).value
+                    && font.equals(((ChartData.Annotation) obj).font) && fill.equals(((ChartData.Annotation) obj).fill));
+        }
+
+        @Override
+        public int hashCode() {
+
+            return Objects.hash(text, value, font, fill);
+        }
+
+        public static class Builder {
+
+            private String text;
+            private Double value;
+            private Font font;
+            private Color fill;
+
+            public Builder text(final String text) {
+
+                this.text = text;
+                return this;
+            }
+
+            public Builder value(final double value) {
+
+                this.value = value;
+                return this;
+            }
+
+            public Builder font(final Font font) {
+
+                this.font = font;
+                return this;
+            }
+
+            public Builder fill(final Color fill) {
+
+                this.fill = fill;
+                return this;
+            }
+
+            public Annotation build() {
+
+                validate();
+                return new Annotation(text, value, Optional.ofNullable(font), Optional.ofNullable(fill));
+            }
+
+            private void validate() throws IllegalStateException {
+
+                if (text == null)
+                    throw new IllegalStateException("text is required");
+
+                if (value == null)
+                    throw new IllegalStateException("value is required");
+            }
+        }
     }
 }

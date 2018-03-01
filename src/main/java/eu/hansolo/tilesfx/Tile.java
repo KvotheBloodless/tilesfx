@@ -908,11 +908,27 @@ public class Tile extends Control {
         originalThreshold = THRESHOLD;
         if (null == threshold) {
             _threshold = clamp(getMinValue(), getMaxValue(), THRESHOLD);
-            fireTileEvent(RESIZE_EVENT);
+            fireTileEvent(RECALC_EVENT);
         } else {
             threshold.set(THRESHOLD);
         }
     }
+    
+//    public void setMaxValue(final double VALUE) {
+//        if (Status.RUNNING == timeline.getStatus()) { timeline.jumpTo(Duration.ONE); }
+//        if (null == maxValue) {
+//            if (VALUE < getMinValue()) { setMinValue(VALUE); }
+//            _maxValue = clamp(getMinValue(), Double.MAX_VALUE, VALUE);
+//            setRange(_maxValue - getMinValue());
+//            if (Helper.equals(originalMaxValue, Double.MAX_VALUE)) originalMaxValue = _maxValue;
+//            if (Helper.biggerThan(originalThreshold, getThreshold())) { setThreshold(clamp(getMinValue(), _maxValue, originalThreshold)); }
+//            fireTileEvent(RECALC_EVENT);
+//            if (!valueProperty().isBound()) Tile.this.setValue(clamp(getMinValue(), getMaxValue(), Tile.this.getValue()));
+//        } else {
+//            maxValue.set(VALUE);
+//        }
+//    }
+    
     public DoubleProperty tresholdProperty() {
         if (null == threshold) {
             threshold = new DoublePropertyBase(_threshold) {

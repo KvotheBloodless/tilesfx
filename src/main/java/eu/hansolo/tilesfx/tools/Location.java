@@ -323,6 +323,24 @@ public class Location {
         return calcDistanceInMeter(P1, P2) / 1000.0;
     }
 
+    public static double calcMetersPerSecond(final Location P1, final Location P2) {
+
+        if (P1.getTimestamp() == P2.getTimestamp())
+            throw new UnsupportedOperationException("Can not calculate velocity because timestamps are identical");
+
+        final double meters = calcDistanceInMeter(P1, P2);
+
+        if (meters == 0)
+            return 0;
+
+        return meters / (Math.abs(P1.getTimestamp().toEpochMilli() - P2.getTimestamp().toEpochMilli()) / 1000);
+    }
+
+    public static double metersPerSecondToKnots(final double metersPerSecond) {
+
+        return metersPerSecond * 1.94384;
+    }
+
     public static double calcDistanceInMeter(final double LAT_1, final double LON_1, final double LAT_2, final double LON_2) {
 
         final double EARTH_RADIUS = 6_371_000; // m
@@ -399,10 +417,10 @@ public class Location {
         meters /= 1000;
 
         meters /= 6371;
-        bearing = toRadians(bearing);
+        bearing = Math.toRadians(bearing);
 
-        double vLat1 = toRadians(location.getLatitude());
-        double vLng1 = toRadians(location.getLongitude());
+        double vLat1 = Math.toRadians(location.getLatitude());
+        double vLng1 = Math.toRadians(location.getLongitude());
 
         double vNewLat = Math.asin(Math.sin(vLat1) * Math.cos(meters) +
                 Math.cos(vLat1) * Math.sin(meters) * Math.cos(bearing));
@@ -410,17 +428,7 @@ public class Location {
         double vNewLng = vLng1 + Math.atan2(Math.sin(bearing) * Math.sin(meters) * Math.cos(vLat1),
                 Math.cos(meters) - Math.sin(vLat1) * Math.sin(vNewLat));
 
-        return new Location(toDeg(vNewLat), toDeg(vNewLng));
-    }
-
-    public static double toRadians(final double degrees) {
-
-        return degrees * Math.PI / 180;
-    }
-
-    public static double toDeg(final double radians) {
-
-        return radians * 180 / Math.PI;
+        return new Location(Math.toDegrees(vNewLat), Math.toDegrees(vNewLng));
     }
 
     // ******************** Event Handling ************************************

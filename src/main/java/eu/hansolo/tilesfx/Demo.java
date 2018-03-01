@@ -64,88 +64,88 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
-
 /**
  * User: hansolo
  * Date: 19.12.16
  * Time: 12:54
  */
 public class Demo extends Application {
-    private static final    Random RND = new Random();
-    private static final    double TILE_WIDTH  = 150;
-    private static final    double TILE_HEIGHT = 150;
-    private static          int    noOfNodes = 0;
 
-    private BarChartItem    barChartItem1;
-    private BarChartItem    barChartItem2;
-    private BarChartItem    barChartItem3;
-    private BarChartItem    barChartItem4;
+    private static final Random RND = new Random();
+    private static final double TILE_WIDTH = 150;
+    private static final double TILE_HEIGHT = 150;
+    private static int noOfNodes = 0;
+
+    private BarChartItem barChartItem1;
+    private BarChartItem barChartItem2;
+    private BarChartItem barChartItem3;
+    private BarChartItem barChartItem4;
 
     private LeaderBoardItem leaderBoardItem1;
     private LeaderBoardItem leaderBoardItem2;
     private LeaderBoardItem leaderBoardItem3;
     private LeaderBoardItem leaderBoardItem4;
 
-    private ChartData       chartData1;
-    private ChartData       chartData2;
-    private ChartData       chartData3;
-    private ChartData       chartData4;
-    private ChartData       chartData5;
-    private ChartData       chartData6;
-    private ChartData       chartData7;
-    private ChartData       chartData8;
+    private ChartData chartData1;
+    private ChartData chartData2;
+    private ChartData chartData3;
+    private ChartData chartData4;
+    private ChartData chartData5;
+    private ChartData chartData6;
+    private ChartData chartData7;
+    private ChartData chartData8;
 
-    private ChartData       smoothChartData1;
-    private ChartData       smoothChartData2;
-    private ChartData       smoothChartData3;
-    private ChartData       smoothChartData4;
+    private ChartData smoothChartData1;
+    private ChartData smoothChartData2;
+    private ChartData smoothChartData3;
+    private ChartData smoothChartData4;
 
-    private Tile            percentageTile;
-    private Tile            clockTile;
-    private Tile            gaugeTile;
-    private Tile            sparkLineTile;
-    private Tile            areaChartTile;
-    private Tile            lineChartTile;
-    private Tile            highLowTile;
-    private Tile            timerControlTile;
-    private Tile            numberTile;
-    private Tile            textTile;
-    private Tile            plusMinusTile;
-    private Tile            sliderTile;
-    private Tile            switchTile;
-    private Tile            worldTile;
-    private Tile            weatherTile;
-    private Tile            timeTile;
-    private Tile            barChartTile;
-    private Tile            customTile;
-    private Tile            leaderBoardTile;
-    private Tile            mapTile;
-    private Tile            radialChartTile;
-    private Tile            donutChartTile;
-    private Tile            circularProgressTile;
-    private Tile            stockTile;
-    private Tile            gaugeSparkLineTile;
-    private Tile            radarChartTile1;
-    private Tile            radarChartTile2;
-    private Tile            smoothAreaChartTile;
-    private Tile            countryTile;
-    private Tile            ephemerisTile;
-    private Tile            characterTile;
-    private Tile            flipTile;
-    private Tile            switchSliderTile;
-    private Tile            dateTile;
-    private Tile            calendarTile;
-    private Tile            sunburstTile;
-    private Tile            matrixTile;
-    private Tile            radialPercentageTile;
+    private Tile percentageTile;
+    private Tile clockTile;
+    private Tile gaugeTile;
+    private Tile sparkLineTile;
+    private Tile areaChartTile;
+    private Tile lineChartTile;
+    private Tile highLowTile;
+    private Tile timerControlTile;
+    private Tile numberTile;
+    private Tile textTile;
+    private Tile plusMinusTile;
+    private Tile sliderTile;
+    private Tile switchTile;
+    private Tile worldTile;
+    private Tile weatherTile;
+    private Tile timeTile;
+    private Tile barChartTile;
+    private Tile customTile;
+    private Tile leaderBoardTile;
+    private Tile mapTile;
+    private Tile radialChartTile;
+    private Tile donutChartTile;
+    private Tile circularProgressTile;
+    private Tile stockTile;
+    private Tile gaugeSparkLineTile;
+    private Tile radarChartTile1;
+    private Tile radarChartTile2;
+    private Tile smoothAreaChartTile;
+    private Tile countryTile;
+    private Tile ephemerisTile;
+    private Tile characterTile;
+    private Tile flipTile;
+    private Tile switchSliderTile;
+    private Tile dateTile;
+    private Tile calendarTile;
+    private Tile sunburstTile;
+    private Tile matrixTile;
+    private Tile radialPercentageTile;
 
+    private long lastTimerCall;
+    private AnimationTimer timer;
+    private DoubleProperty value;
 
-    private long            lastTimerCall;
-    private AnimationTimer  timer;
-    private DoubleProperty  value;
+    @Override
+    public void init() {
 
-
-    @Override public void init() {
         value = new SimpleDoubleProperty(0);
 
         // AreaChart Data
@@ -181,9 +181,9 @@ public class Demo extends Application {
         series3.getData().add(new XYChart.Data("SU", 5));
 
         // WorldMap Data
-        for (int i = 0; i < Country.values().length ; i++) {
+        for (int i = 0; i < Country.values().length; i++) {
             double value = RND.nextInt(10);
-            Color  color;
+            Color color;
             if (value > 8) {
                 color = Tile.RED;
             } else if (value > 6) {
@@ -200,19 +200,19 @@ public class Demo extends Application {
 
         // TimeControl Data
         TimeSection timeSection = TimeSectionBuilder.create()
-                                        .start(LocalTime.now().plusSeconds(20))
-                                        .stop(LocalTime.now().plusHours(1))
-                                        //.days(DayOfWeek.MONDAY, DayOfWeek.FRIDAY)
-                                        .color(Tile.GRAY)
-                                        .highlightColor(Tile.RED)
-                                        .build();
+                .start(LocalTime.now().plusSeconds(20))
+                .stop(LocalTime.now().plusHours(1))
+                // .days(DayOfWeek.MONDAY, DayOfWeek.FRIDAY)
+                .color(Tile.GRAY)
+                .highlightColor(Tile.RED)
+                .build();
 
         timeSection.setOnTimeSectionEntered(e -> System.out.println("Section ACTIVE"));
         timeSection.setOnTimeSectionLeft(e -> System.out.println("Section INACTIVE"));
 
         // Weather (You can get a DarkSky API key here: https://darksky.net/dev/ )
-        DarkSky darkSky = new DarkSky("YOUR DARKSKY API KEY", Unit.CA, Language.ENGLISH, 51.911858, 7.632815);
-        //darkSky.update();
+        DarkSky darkSky = new DarkSky("c5ee106f1fc3a24ea36b89e5188e97d8", Unit.CA, Language.ENGLISH, 51.911858, 7.632815);
+        darkSky.update();
 
         // BarChart Items
         barChartItem1 = new BarChartItem("Gerrit", 47, Tile.BLUE);
@@ -237,7 +237,7 @@ public class Demo extends Application {
         chartData6 = new ChartData("Item 6", 13.0, Tile.BLUE);
         chartData7 = new ChartData("Item 7", 13.0, Tile.BLUE);
         chartData8 = new ChartData("Item 8", 13.0, Tile.BLUE);
-        //ChartData.animated = false;
+        // ChartData.animated = false;
 
         smoothChartData1 = new ChartData("Item 1", RND.nextDouble() * 25, Tile.BLUE);
         smoothChartData2 = new ChartData("Item 2", RND.nextDouble() * 25, Tile.BLUE);
@@ -246,382 +246,389 @@ public class Demo extends Application {
 
         // Creating Tiles
         percentageTile = TileBuilder.create()
-                                    .skinType(SkinType.PERCENTAGE)
-                                    .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                    .title("Percentage Tile")
-                                    .unit("\u0025")
-                                    .description("Test")
-                                    .maxValue(60)
-                                    .build();
+                .skinType(SkinType.PERCENTAGE)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("Percentage Tile")
+                .unit("\u0025")
+                .description("Test")
+                .maxValue(60)
+                .build();
 
         clockTile = TileBuilder.create()
-                               .skinType(SkinType.CLOCK)
-                               .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                               .title("Clock Tile")
-                               .text("Whatever text")
-                               .dateVisible(true)
-                               .locale(Locale.US)
-                               .running(true)
-                               .build();
+                .skinType(SkinType.CLOCK)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("Clock Tile")
+                .text("Whatever text")
+                .dateVisible(true)
+                .locale(Locale.US)
+                .running(true)
+                .build();
 
         gaugeTile = TileBuilder.create()
-                               .skinType(SkinType.GAUGE)
-                               .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                               .title("Gauge Tile")
-                               .unit("V")
-                               .threshold(75)
-                               .build();
+                .skinType(SkinType.GAUGE)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("Gauge Tile")
+                .unit("V")
+                .threshold(75)
+                .build();
 
         sparkLineTile = TileBuilder.create()
-                                   .skinType(SkinType.SPARK_LINE)
-                                   .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                   .title("SparkLine Tile")
-                                   .unit("mb")
-                                   .gradientStops(new Stop(0, Tile.GREEN),
-                                                  new Stop(0.5, Tile.YELLOW),
-                                                  new Stop(1.0, Tile.RED))
-                                   .strokeWithGradient(true)
-                                   //.smoothing(true)
-                                   .build();
+                .skinType(SkinType.SPARK_LINE)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("SparkLine Tile")
+                .unit("mb")
+                .gradientStops(new Stop(0, Tile.GREEN),
+                        new Stop(0.5, Tile.YELLOW),
+                        new Stop(1.0, Tile.RED))
+                .strokeWithGradient(true)
+                // .smoothing(true)
+                .build();
 
-        //sparkLineTile.valueProperty().bind(value);
+        // sparkLineTile.valueProperty().bind(value);
 
         areaChartTile = TileBuilder.create()
-                                   .skinType(SkinType.SMOOTHED_CHART)
-                                   .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                   .title("SmoothedChart Tile")
-                                   .chartType(ChartType.AREA)
-                                   .animated(true)
-                                   .smoothing(true)
-                                   .tooltipTimeout(1000)
-                                   .tilesFxSeries(new TilesFXSeries<>(series1,
-                                                               Tile.BLUE,
-                                                               new LinearGradient(0, 0, 0, 1,
-                                                                                  true, CycleMethod.NO_CYCLE,
-                                                                                  new Stop(0, Tile.BLUE),
-                                                                                  new Stop(1, Color.TRANSPARENT))))
-                                   .build();
+                .skinType(SkinType.SMOOTHED_CHART)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("SmoothedChart Tile")
+                .chartType(ChartType.AREA)
+                .animated(true)
+                .smoothing(true)
+                .tooltipTimeout(1000)
+                .tilesFxSeries(new TilesFXSeries<>(series1,
+                        Tile.BLUE,
+                        new LinearGradient(0, 0, 0, 1,
+                                true, CycleMethod.NO_CYCLE,
+                                new Stop(0, Tile.BLUE),
+                                new Stop(1, Color.TRANSPARENT))))
+                .build();
 
         lineChartTile = TileBuilder.create()
-                                   .skinType(SkinType.SMOOTHED_CHART)
-                                   .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                   .title("SmoothedChart Tile")
-                                   .animated(true)
-                                   .smoothing(false)
-                                   .series(series2, series3)
-                                   .build();
+                .skinType(SkinType.SMOOTHED_CHART)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("SmoothedChart Tile")
+                .animated(true)
+                .smoothing(false)
+                .series(series2, series3)
+                .build();
 
         highLowTile = TileBuilder.create()
-                                 .skinType(SkinType.HIGH_LOW)
-                                 .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                 .title("HighLow Tile")
-                                 .unit("\u20AC")
-                                 .description("Test")
-                                 .text("Whatever text")
-                                 .referenceValue(6.7)
-                                 .value(8.2)
-                                 .build();
+                .skinType(SkinType.HIGH_LOW)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("HighLow Tile")
+                .unit("\u20AC")
+                .description("Test")
+                .text("Whatever text")
+                .referenceValue(6.7)
+                .value(8.2)
+                .build();
 
         timerControlTile = TileBuilder.create()
-                                      .skinType(SkinType.TIMER_CONTROL)
-                                      .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                      .title("TimerControl Tile")
-                                      .text("Whatever text")
-                                      .secondsVisible(true)
-                                      .dateVisible(true)
-                                      .timeSections(timeSection)
-                                      .running(true)
-                                      .build();
+                .skinType(SkinType.TIMER_CONTROL)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("TimerControl Tile")
+                .text("Whatever text")
+                .secondsVisible(true)
+                .dateVisible(true)
+                .timeSections(timeSection)
+                .running(true)
+                .build();
 
         numberTile = TileBuilder.create()
-                                .skinType(SkinType.NUMBER)
-                                .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                .title("Number Tile")
-                                .text("Whatever text")
-                                .value(13)
-                                .unit("mb")
-                                .description("Test")
-                                .textVisible(true)
-                                .build();
+                .skinType(SkinType.NUMBER)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("Number Tile")
+                .text("Whatever text")
+                .value(13)
+                .unit("mb")
+                .description("Test")
+                .textVisible(true)
+                .build();
 
         textTile = TileBuilder.create()
-                              .skinType(SkinType.TEXT)
-                              .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                              .title("Text Tile")
-                              .text("Whatever text")
-                              .description("May the force be with you\n...always")
-                              .descriptionAlignment(Pos.TOP_LEFT)
-                              .textVisible(true)
-                              .build();
+                .skinType(SkinType.TEXT)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("Text Tile")
+                .text("Whatever text")
+                .description("May the force be with you\n...always")
+                .descriptionAlignment(Pos.TOP_LEFT)
+                .textVisible(true)
+                .build();
 
         plusMinusTile = TileBuilder.create()
-                                   .skinType(SkinType.PLUS_MINUS)
-                                   .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                   .maxValue(30)
-                                   .minValue(0)
-                                   .title("PlusMinus Tile")
-                                   .text("Whatever text")
-                                   .description("Test")
-                                   .unit("\u00B0C")
-                                   .build();
+                .skinType(SkinType.PLUS_MINUS)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .maxValue(30)
+                .minValue(0)
+                .title("PlusMinus Tile")
+                .text("Whatever text")
+                .description("Test")
+                .unit("\u00B0C")
+                .build();
 
         sliderTile = TileBuilder.create()
-                                .skinType(SkinType.SLIDER)
-                                .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                .title("Slider Tile")
-                                .text("Whatever text")
-                                .description("Test")
-                                .unit("\u00B0C")
-                                .barBackgroundColor(Tile.FOREGROUND)
-                                .build();
+                .skinType(SkinType.SLIDER)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("Slider Tile")
+                .text("Whatever text")
+                .description("Test")
+                .unit("\u00B0C")
+                .barBackgroundColor(Tile.FOREGROUND)
+                .build();
 
         switchTile = TileBuilder.create()
-                                .skinType(SkinType.SWITCH)
-                                .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                .title("Switch Tile")
-                                .text("Whatever text")
-                                //.description("Test")
-                                .build();
+                .skinType(SkinType.SWITCH)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("Switch Tile")
+                .text("Whatever text")
+                // .description("Test")
+                .build();
 
         switchTile.setOnSwitchPressed(e -> System.out.println("Switch pressed"));
         switchTile.setOnSwitchReleased(e -> System.out.println("Switch released"));
 
         worldTile = TileBuilder.create()
-                               .prefSize(300, TILE_HEIGHT)
-                               .skinType(SkinType.WORLDMAP)
-                               .title("WorldMap Tile")
-                               .text("Whatever text")
-                               .textVisible(false)
-                               .build();
+                .prefSize(300, TILE_HEIGHT)
+                .skinType(SkinType.WORLDMAP)
+                .title("WorldMap Tile")
+                .text("Whatever text")
+                .textVisible(false)
+                .build();
 
         // Update the weather information by calling weatherTile.updateWeather()
         weatherTile = TileBuilder.create()
-                                 .skinType(SkinType.WEATHER)
-                                 .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                 .title("YOUR CITY NAME")
-                                 .text("Whatever text")
-                                 .darkSky(darkSky)
-                                 .build();
+                .skinType(SkinType.WEATHER)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("YOUR CITY NAME")
+                .text("Whatever text")
+                .darkSky(darkSky)
+                .build();
 
         timeTile = TileBuilder.create()
-                              .skinType(SkinType.TIME)
-                              .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                              .title("Time Tile")
-                              .text("Whatever text")
-                              .duration(LocalTime.of(1, 22))
-                              .description("Average reply time")
-                              .textVisible(true)
-                              .build();
+                .skinType(SkinType.TIME)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("Time Tile")
+                .text("Whatever text")
+                .duration(LocalTime.of(1, 22))
+                .description("Average reply time")
+                .textVisible(true)
+                .build();
 
         barChartTile = TileBuilder.create()
-                                  .skinType(SkinType.BAR_CHART)
-                                  .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                  .title("BarChart Tile")
-                                  .text("Whatever text")
-                                  .barChartItems(barChartItem1, barChartItem2, barChartItem3, barChartItem4)
-                                  .decimals(0)
-                                  .build();
+                .skinType(SkinType.BAR_CHART)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("BarChart Tile")
+                .text("Whatever text")
+                .barChartItems(barChartItem1, barChartItem2, barChartItem3, barChartItem4)
+                .decimals(0)
+                .build();
 
         customTile = TileBuilder.create()
-                                .skinType(SkinType.CUSTOM)
-                                .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                .title("Custom Tile")
-                                .text("Whatever text")
-                                .graphic(new Button("Click Me"))
-                                .roundedCorners(false)
-                                .build();
+                .skinType(SkinType.CUSTOM)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("Custom Tile")
+                .text("Whatever text")
+                .graphic(new Button("Click Me"))
+                .roundedCorners(false)
+                .build();
 
         leaderBoardTile = TileBuilder.create()
-                                     .skinType(SkinType.LEADER_BOARD)
-                                     .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                     .title("LeaderBoard Tile")
-                                     .text("Whatever text")
-                                     .leaderBoardItems(leaderBoardItem1, leaderBoardItem2, leaderBoardItem3, leaderBoardItem4)
-                                     .build();
+                .skinType(SkinType.LEADER_BOARD)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("LeaderBoard Tile")
+                .text("Whatever text")
+                .leaderBoardItems(leaderBoardItem1, leaderBoardItem2, leaderBoardItem3, leaderBoardItem4)
+                .build();
 
         mapTile = TileBuilder.create()
-                             .skinType(SkinType.MAP)
-                             .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                             .title("Map")
-                             .text("Some text")
-                             .description("Description")
-                             .currentLocation(new Location(51.91178, 7.63379, "Home", TileColor.MAGENTA.color))
-                             .pointsOfInterest(new Location(51.914405, 7.635732, "POI 1", TileColor.RED.color),
-                                               new Location(51.912529, 7.631752, "POI 2", TileColor.BLUE.color),
-                                               new Location(51.923993, 7.628906, "POI 3", TileColor.YELLOW_ORANGE.color))
-                             .mapProvider(MapProvider.TOPO)
-                             .build();
+                .skinType(SkinType.MAP)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("Map")
+                .text("Some text")
+                .description("Description")
+                .currentLocation(new Location(51.91178, 7.63379, "Home", TileColor.MAGENTA.color))
+                .pointsOfInterest(new Location(51.914405, 7.635732, "POI 1", TileColor.RED.color),
+                        new Location(51.912529, 7.631752, "POI 2", TileColor.BLUE.color),
+                        new Location(51.923993, 7.628906, "POI 3", TileColor.YELLOW_ORANGE.color))
+                .mapProvider(MapProvider.TOPO)
+                .build();
 
         radialChartTile = TileBuilder.create()
-                                     .skinType(SkinType.RADIAL_CHART)
-                                     .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                     .title("RadialChart")
-                                     .text("Some text")
-                                     .textVisible(false)
-                                     .chartData(chartData1, chartData2, chartData3, chartData4)
-                                     .build();
+                .skinType(SkinType.RADIAL_CHART)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("RadialChart")
+                .text("Some text")
+                .textVisible(false)
+                .chartData(chartData1, chartData2, chartData3, chartData4)
+                .build();
 
         donutChartTile = TileBuilder.create()
-                                     .skinType(SkinType.DONUT_CHART)
-                                     .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                     .title("DonutChart")
-                                     .text("Some text")
-                                     .textVisible(false)
-                                     .chartData(chartData1, chartData2, chartData3, chartData4)
-                                     .build();
+                .skinType(SkinType.DONUT_CHART)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("DonutChart")
+                .text("Some text")
+                .textVisible(false)
+                .chartData(chartData1, chartData2, chartData3, chartData4)
+                .build();
 
         circularProgressTile = TileBuilder.create()
-                                          .skinType(SkinType.CIRCULAR_PROGRESS)
-                                          .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                          .title("CircularProgress")
-                                          .text("Some text")
-                                          .unit("\u0025")
-                                          //.graphic(new WeatherSymbol(ConditionAndIcon.CLEAR_DAY, 48, Color.WHITE))
-                                          .build();
+                .skinType(SkinType.CIRCULAR_PROGRESS)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("CircularProgress")
+                .text("Some text")
+                .unit("\u0025")
+                // .graphic(new WeatherSymbol(ConditionAndIcon.CLEAR_DAY, 48, Color.WHITE))
+                .build();
 
         stockTile = TileBuilder.create()
-                               .skinType(SkinType.STOCK)
-                               .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                               .title("Stock")
-                               .minValue(0)
-                               .maxValue(1000)
-                               .averagingPeriod(100)
-                               .build();
+                .skinType(SkinType.STOCK)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("Stock")
+                .minValue(0)
+                .maxValue(1000)
+                .averagingPeriod(100)
+                .build();
 
         gaugeSparkLineTile = TileBuilder.create()
-                                        .skinType(SkinType.GAUGE_SPARK_LINE)
-                                        .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                        .title("GaugeSparkLine")
-                                        .animated(true)
-                                        .textVisible(false)
-                                        .averagingPeriod(25)
-                                        .autoReferenceValue(true)
-                                        .barColor(Tile.YELLOW_ORANGE)
-                                        .barBackgroundColor(Color.rgb(255, 255, 255, 0.1))
-                                        .sections(new eu.hansolo.tilesfx.Section(0, 33, Tile.LIGHT_GREEN),
-                                                  new eu.hansolo.tilesfx.Section(33, 67, Tile.YELLOW),
-                                                  new eu.hansolo.tilesfx.Section(67, 100, Tile.LIGHT_RED))
-                                        .sectionsVisible(true)
-                                        .highlightSections(true)
-                                        .strokeWithGradient(true)
-                                        .gradientStops(new Stop(0.0, Tile.LIGHT_GREEN),
-                                                       new Stop(0.33, Tile.LIGHT_GREEN),
-                                                       new Stop(0.33,Tile.YELLOW),
-                                                       new Stop(0.67, Tile.YELLOW),
-                                                       new Stop(0.67, Tile.LIGHT_RED),
-                                                       new Stop(1.0, Tile.LIGHT_RED))
-                                        .build();
+                .skinType(SkinType.GAUGE_SPARK_LINE)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("GaugeSparkLine")
+                .animated(true)
+                .textVisible(false)
+                .averagingPeriod(25)
+                .autoReferenceValue(true)
+                .barColor(Tile.YELLOW_ORANGE)
+                .barBackgroundColor(Color.rgb(255, 255, 255, 0.1))
+                .sections(new eu.hansolo.tilesfx.Section(0, 33, Tile.LIGHT_GREEN),
+                        new eu.hansolo.tilesfx.Section(33, 67, Tile.YELLOW),
+                        new eu.hansolo.tilesfx.Section(67, 100, Tile.LIGHT_RED))
+                .sectionsVisible(true)
+                .highlightSections(true)
+                .strokeWithGradient(true)
+                .gradientStops(new Stop(0.0, Tile.LIGHT_GREEN),
+                        new Stop(0.33, Tile.LIGHT_GREEN),
+                        new Stop(0.33, Tile.YELLOW),
+                        new Stop(0.67, Tile.YELLOW),
+                        new Stop(0.67, Tile.LIGHT_RED),
+                        new Stop(1.0, Tile.LIGHT_RED))
+                .build();
 
-        radarChartTile1 = TileBuilder.create().skinType(SkinType.RADAR_CHART)
-                                     .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                     .minValue(0)
-                                     .maxValue(50)
-                                     .title("RadarChart Sector")
-                                     .unit("Unit")
-                                     .radarChartMode(Mode.SECTOR)
-                                     .gradientStops(new Stop(0.00000, Color.TRANSPARENT),
-                                                    new Stop(0.00001, Color.web("#3552a0")),
-                                                    new Stop(0.09090, Color.web("#456acf")),
-                                                    new Stop(0.27272, Color.web("#45a1cf")),
-                                                    new Stop(0.36363, Color.web("#30c8c9")),
-                                                    new Stop(0.45454, Color.web("#30c9af")),
-                                                    new Stop(0.50909, Color.web("#56d483")),
-                                                    new Stop(0.72727, Color.web("#9adb49")),
-                                                    new Stop(0.81818, Color.web("#efd750")),
-                                                    new Stop(0.90909, Color.web("#ef9850")),
-                                                    new Stop(1.00000, Color.web("#ef6050")))
-                                     .text("Test")
-                                     .chartData(chartData1, chartData2, chartData3, chartData4,
-                                                chartData5, chartData6, chartData7, chartData8)
-                                     .tooltipText("")
-                                     .animated(true)
-                                     .build();
+        radarChartTile1 = TileBuilder.create()
+                .skinType(SkinType.RADAR_CHART)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .minValue(0)
+                .maxValue(50)
+                .title("RadarChart Sector")
+                .unit("Unit")
+                .radarChartMode(Mode.SECTOR)
+                .gradientStops(new Stop(0.00000, Color.TRANSPARENT),
+                        new Stop(0.00001, Color.web("#3552a0")),
+                        new Stop(0.09090, Color.web("#456acf")),
+                        new Stop(0.27272, Color.web("#45a1cf")),
+                        new Stop(0.36363, Color.web("#30c8c9")),
+                        new Stop(0.45454, Color.web("#30c9af")),
+                        new Stop(0.50909, Color.web("#56d483")),
+                        new Stop(0.72727, Color.web("#9adb49")),
+                        new Stop(0.81818, Color.web("#efd750")),
+                        new Stop(0.90909, Color.web("#ef9850")),
+                        new Stop(1.00000, Color.web("#ef6050")))
+                .text("Test")
+                .chartData(chartData1, chartData2, chartData3, chartData4,
+                        chartData5, chartData6, chartData7, chartData8)
+                .tooltipText("")
+                .animated(true)
+                .build();
 
-        radarChartTile2 = TileBuilder.create().skinType(SkinType.RADAR_CHART)
-                                     .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                     .minValue(0)
-                                     .maxValue(50)
-                                     .title("RadarChart Polygon")
-                                     .unit("Unit")
-                                     .radarChartMode(Mode.POLYGON)
-                                     .gradientStops(new Stop(0.00000, Color.TRANSPARENT),
-                                                    new Stop(0.00001, Color.web("#3552a0")),
-                                                    new Stop(0.09090, Color.web("#456acf")),
-                                                    new Stop(0.27272, Color.web("#45a1cf")),
-                                                    new Stop(0.36363, Color.web("#30c8c9")),
-                                                    new Stop(0.45454, Color.web("#30c9af")),
-                                                    new Stop(0.50909, Color.web("#56d483")),
-                                                    new Stop(0.72727, Color.web("#9adb49")),
-                                                    new Stop(0.81818, Color.web("#efd750")),
-                                                    new Stop(0.90909, Color.web("#ef9850")),
-                                                    new Stop(1.00000, Color.web("#ef6050")))
-                                     .text("Test")
-                                     .chartData(chartData1, chartData2, chartData3, chartData4,
-                                                chartData5, chartData6, chartData7, chartData8)
-                                     .tooltipText("")
-                                     .animated(true)
-                                     //.smoothing(true)
-                                     .build();
+        radarChartTile2 = TileBuilder.create()
+                .skinType(SkinType.RADAR_CHART)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .minValue(0)
+                .maxValue(50)
+                .title("RadarChart Polygon")
+                .unit("Unit")
+                .radarChartMode(Mode.POLYGON)
+                .gradientStops(new Stop(0.00000, Color.TRANSPARENT),
+                        new Stop(0.00001, Color.web("#3552a0")),
+                        new Stop(0.09090, Color.web("#456acf")),
+                        new Stop(0.27272, Color.web("#45a1cf")),
+                        new Stop(0.36363, Color.web("#30c8c9")),
+                        new Stop(0.45454, Color.web("#30c9af")),
+                        new Stop(0.50909, Color.web("#56d483")),
+                        new Stop(0.72727, Color.web("#9adb49")),
+                        new Stop(0.81818, Color.web("#efd750")),
+                        new Stop(0.90909, Color.web("#ef9850")),
+                        new Stop(1.00000, Color.web("#ef6050")))
+                .text("Test")
+                .chartData(chartData1, chartData2, chartData3, chartData4,
+                        chartData5, chartData6, chartData7, chartData8)
+                .tooltipText("")
+                .animated(true)
+                // .smoothing(true)
+                .build();
 
-        smoothAreaChartTile = TileBuilder.create().skinType(SkinType.SMOOTH_AREA_CHART)
-                                         .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                         .minValue(0)
-                                         .maxValue(40)
-                                         .title("SmoothAreaChart")
-                                         .unit("Unit")
-                                         .text("Test")
-                                         //.chartType(ChartType.LINE)
-                                         //.dataPointsVisible(true)
-                                         .chartData(smoothChartData1, smoothChartData2, smoothChartData3, smoothChartData4)
-                                         .tooltipText("")
-                                         .animated(true)
-                                         .build();
+        smoothAreaChartTile = TileBuilder.create()
+                .skinType(SkinType.SMOOTH_AREA_CHART)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .minValue(0)
+                .maxValue(40)
+                .title("SmoothAreaChart")
+                .unit("Unit")
+                .text("Test")
+                // .chartType(ChartType.LINE)
+                // .dataPointsVisible(true)
+                .chartData(smoothChartData1, smoothChartData2, smoothChartData3, smoothChartData4)
+                .tooltipText("")
+                .animated(true)
+                .build();
 
-        countryTile = TileBuilder.create().skinType(SkinType.COUNTRY)
-                                          .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                          .minValue(0)
-                                          .maxValue(40)
-                                          .title("Country")
-                                          .unit("Unit")
-                                          .country(Country.DE)
-                                          .tooltipText("")
-                                          .animated(true)
-                                          .build();
+        countryTile = TileBuilder.create()
+                .skinType(SkinType.COUNTRY)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .minValue(0)
+                .maxValue(40)
+                .title("Country")
+                .unit("Unit")
+                .country(Country.DE)
+                .tooltipText("")
+                .animated(true)
+                .build();
 
-        ephemerisTile = TileBuilder.create().skinType(SkinType.EPHEMERIS)
-                                            .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                            .title("Ephemeris")
-                                            .currentLocation(new Location(51.911515,7.6340026, "Hiltrup"))
-                                            .text("Hiltrup")
-                                            .build();
+        ephemerisTile = TileBuilder.create()
+                .skinType(SkinType.EPHEMERIS)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("Ephemeris")
+                .currentLocation(new Location(51.911515, 7.6340026, "Hiltrup"))
+                .text("Hiltrup")
+                .build();
 
-        characterTile = TileBuilder.create().skinType(SkinType.CHARACTER)
-                                            .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                            .title("Character")
-                                            .titleAlignment(TextAlignment.CENTER)
-                                            .description("G")
-                                            .build();
+        characterTile = TileBuilder.create()
+                .skinType(SkinType.CHARACTER)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("Character")
+                .titleAlignment(TextAlignment.CENTER)
+                .description("G")
+                .build();
 
-        flipTile      = TileBuilder.create().skinType(SkinType.FLIP)
-                                            .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                            .characters(Helper.TIME_0_TO_5)
-                                            .flipTimeInMS(500)
-                                            .flipText(" ")
-                                            .build();
+        flipTile = TileBuilder.create()
+                .skinType(SkinType.FLIP)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .characters(Helper.TIME_0_TO_5)
+                .flipTimeInMS(500)
+                .flipText(" ")
+                .build();
 
         switchSliderTile = TileBuilder.create()
-                          .skinType(SkinType.SWITCH_SLIDER)
-                          .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                          .title("SwitchSlider")
-                          .text("Test")
-                          .build();
+                .skinType(SkinType.SWITCH_SLIDER)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("SwitchSlider")
+                .text("Test")
+                .build();
 
         dateTile = TileBuilder.create()
-                              .skinType(SkinType.DATE)
-                              .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                              .build();
+                .skinType(SkinType.DATE)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .build();
 
-        ZonedDateTime   now          = ZonedDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now();
         List<ChartData> calendarData = new ArrayList<>(10);
         calendarData.add(new ChartData("Item 1", now.minusDays(1).toInstant()));
         calendarData.add(new ChartData("Item 2", now.plusDays(2).toInstant()));
@@ -635,15 +642,15 @@ public class Demo extends Application {
         calendarData.add(new ChartData("Item 10", now.toInstant()));
 
         calendarTile = TileBuilder.create()
-                                  .skinType(SkinType.CALENDAR)
-                                  .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                  .chartData(calendarData)
-                                  .build();
+                .skinType(SkinType.CALENDAR)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .chartData(calendarData)
+                .build();
 
-        TreeNode tree   = new TreeNode(new ChartData("ROOT"));
-        TreeNode first  = new TreeNode(new ChartData("1st", 8.3, Tile.BLUE), tree);
+        TreeNode tree = new TreeNode(new ChartData("ROOT"));
+        TreeNode first = new TreeNode(new ChartData("1st", 8.3, Tile.BLUE), tree);
         TreeNode second = new TreeNode(new ChartData("2nd", 2.2, Tile.ORANGE), tree);
-        TreeNode third  = new TreeNode(new ChartData("3rd", 1.4, Tile.PINK), tree);
+        TreeNode third = new TreeNode(new ChartData("3rd", 1.4, Tile.PINK), tree);
         TreeNode fourth = new TreeNode(new ChartData("4th", 1.2, Tile.LIGHT_GREEN), tree);
 
         TreeNode jan = new TreeNode(new ChartData("Jan", 3.5), first);
@@ -659,59 +666,64 @@ public class Demo extends Application {
         TreeNode nov = new TreeNode(new ChartData("Nov", 0.4), fourth);
         TreeNode dec = new TreeNode(new ChartData("Dec", 0.3), fourth);
 
+        sunburstTile = TileBuilder.create()
+                .skinType(SkinType.SUNBURST)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("SunburstTile")
+                .textVisible(false)
+                .sunburstTree(tree)
+                .sunburstBackgroundColor(Tile.BACKGROUND)
+                .sunburstTextColor(Tile.BACKGROUND)
+                .sunburstUseColorFromParent(true)
+                .sunburstTextOrientation(TextOrientation.TANGENT)
+                .sunburstAutoTextColor(true)
+                .sunburstUseChartDataTextColor(true)
+                .sunburstInteractive(true)
+                .build();
 
-        sunburstTile = TileBuilder.create().skinType(SkinType.SUNBURST)
-                                  .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                  .title("SunburstTile")
-                                  .textVisible(false)
-                                  .sunburstTree(tree)
-                                  .sunburstBackgroundColor(Tile.BACKGROUND)
-                                  .sunburstTextColor(Tile.BACKGROUND)
-                                  .sunburstUseColorFromParent(true)
-                                  .sunburstTextOrientation(TextOrientation.TANGENT)
-                                  .sunburstAutoTextColor(true)
-                                  .sunburstUseChartDataTextColor(true)
-                                  .sunburstInteractive(true)
-                                  .build();
+        matrixTile = TileBuilder.create()
+                .skinType(SkinType.MATRIX)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("MatrixTileSkin")
+                .text("Any Text")
+                .textVisible(false)
+                .animated(true)
+                .matrixSize(8, 50)
+                .chartData(chartData1, chartData2, chartData3, chartData4, chartData5, chartData6, chartData7, chartData8)
+                .build();
 
-        matrixTile = TileBuilder.create().skinType(SkinType.MATRIX)
-                                .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                .title("MatrixTileSkin")
-                                .text("Any Text")
-                                .textVisible(false)
-                                .animated(true)
-                                .matrixSize(8, 50)
-                                .chartData(chartData1, chartData2, chartData3, chartData4, chartData5, chartData6, chartData7, chartData8)
-                                .build();
-
-        radialPercentageTile = TileBuilder.create().skinType(SkinType.RADIAL_PERCENTAGE)
-                                          .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                                          .backgroundColor(Color.web("#26262D"))
-                                          .maxValue(1000)
-                                          .title("RadialPercentageSkin")
-                                          .description("Product 1")
-                                          .textVisible(false)
-                                          .chartData(chartData1, chartData2, chartData3)
-                                          .animated(true)
-                                          .referenceValue(100)
-                                          .value(chartData1.getValue())
-                                          .descriptionColor(Tile.GRAY)
-                                          //.valueColor(Tile.BLUE)
-                                          //.unitColor(Tile.BLUE)
-                                          .barColor(Tile.BLUE)
-                                          .decimals(0)
-                                          .build();
+        radialPercentageTile = TileBuilder.create()
+                .skinType(SkinType.RADIAL_PERCENTAGE)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .backgroundColor(Color.web("#26262D"))
+                .maxValue(1000)
+                .title("RadialPercentageSkin")
+                .description("Product 1")
+                .textVisible(false)
+                .chartData(chartData1, chartData2, chartData3)
+                .animated(true)
+                .referenceValue(100)
+                .value(chartData1.getValue())
+                .descriptionColor(Tile.GRAY)
+                // .valueColor(Tile.BLUE)
+                // .unitColor(Tile.BLUE)
+                .barColor(Tile.BLUE)
+                .decimals(0)
+                .build();
 
         lastTimerCall = System.nanoTime();
         timer = new AnimationTimer() {
-            @Override public void handle(long now) {
+
+            @Override
+            public void handle(long now) {
+
                 if (now > lastTimerCall + 3_500_000_000L) {
                     percentageTile.setValue(RND.nextDouble() * percentageTile.getRange() * 1.5 + percentageTile.getMinValue());
                     gaugeTile.setValue(RND.nextDouble() * gaugeTile.getRange() * 1.5 + gaugeTile.getMinValue());
 
                     sparkLineTile.setValue(RND.nextDouble() * sparkLineTile.getRange() * 1.5 + sparkLineTile.getMinValue());
-                    //value.set(RND.nextDouble() * sparkLineTile.getRange() * 1.5 + sparkLineTile.getMinValue());
-                    //sparkLineTile.setValue(20);
+                    // value.set(RND.nextDouble() * sparkLineTile.getRange() * 1.5 + sparkLineTile.getMinValue());
+                    // sparkLineTile.setValue(20);
 
                     highLowTile.setValue(RND.nextDouble() * 10);
                     series1.getData().forEach(data -> data.setYValue(RND.nextInt(100)));
@@ -756,24 +768,26 @@ public class Demo extends Application {
         };
     }
 
-    @Override public void start(Stage stage) {
+    @Override
+    public void start(Stage stage) {
+
         FlowGridPane pane = new FlowGridPane(8, 5,
-                                             percentageTile, clockTile, gaugeTile, sparkLineTile, areaChartTile,
-                                             lineChartTile, timerControlTile, numberTile, textTile,
-                                             highLowTile, plusMinusTile, sliderTile, switchTile, timeTile,
-                                             barChartTile, customTile, leaderBoardTile, worldTile, mapTile,
-                                             radialChartTile, donutChartTile, circularProgressTile, stockTile,
-                                             gaugeSparkLineTile, radarChartTile1, radarChartTile2,
-                                             smoothAreaChartTile, countryTile, ephemerisTile, characterTile,
-                                             flipTile, switchSliderTile, dateTile, calendarTile, sunburstTile,
-                                             matrixTile, radialPercentageTile);//, weatherTile);
+                percentageTile, clockTile, gaugeTile, sparkLineTile, areaChartTile,
+                lineChartTile, timerControlTile, numberTile, textTile,
+                highLowTile, plusMinusTile, sliderTile, switchTile, timeTile,
+                barChartTile, customTile, leaderBoardTile, worldTile, mapTile,
+                radialChartTile, donutChartTile, circularProgressTile, stockTile,
+                gaugeSparkLineTile, radarChartTile1, radarChartTile2,
+                smoothAreaChartTile, countryTile, ephemerisTile, characterTile,
+                flipTile, switchSliderTile, dateTile, calendarTile, sunburstTile,
+                matrixTile, radialPercentageTile, weatherTile);
 
         pane.setHgap(5);
         pane.setVgap(5);
         pane.setAlignment(Pos.CENTER);
         pane.setCenterShape(true);
         pane.setPadding(new Insets(5));
-        //pane.setPrefSize(800, 600);
+        // pane.setPrefSize(800, 600);
         pane.setBackground(new Background(new BackgroundFill(Color.web("#101214"), CornerRadii.EMPTY, Insets.EMPTY)));
 
         PerspectiveCamera camera = new PerspectiveCamera();
@@ -798,24 +812,28 @@ public class Demo extends Application {
         radialPercentageTile.showNotifier(true);
     }
 
-    @Override public void stop() {
+    @Override
+    public void stop() {
+
         System.exit(0);
     }
 
-
     // ******************** Misc **********************************************
     private static void calcNoOfNodes(Node node) {
+
         if (node instanceof Parent) {
             if (((Parent) node).getChildrenUnmodifiable().size() != 0) {
                 ObservableList<Node> tempChildren = ((Parent) node).getChildrenUnmodifiable();
                 noOfNodes += tempChildren.size();
-                for (Node n : tempChildren) { calcNoOfNodes(n); }
+                for (Node n : tempChildren) {
+                    calcNoOfNodes(n);
+                }
             }
         }
     }
 
-
     public static void main(String[] args) {
+
         launch(args);
     }
 }

@@ -102,11 +102,13 @@ public class RadarChartTileSkin extends TileSkin {
             Helper.enableNode(titleText, !tile.getTitle().isEmpty());
             Helper.enableNode(text, tile.isTextVisible());
             radarChart.setThresholdVisible(tile.isThresholdVisible());
+            radarChart.setThreshold(tile.getThreshold());
         } else if ("RECALC".equals(EVENT_TYPE)) {
             radarChart.setMaxValue(tile.getMaxValue());
             radarChart.setUnit(tile.getUnit());
             radarChart.setMode(tile.getRadarChartMode());
             radarChart.setThresholdColor(tile.getThresholdColor());
+            radarChart.setThreshold(tile.getThreshold());
             radarChart.setGradientStops(tile.getGradientStops());
         }
     }

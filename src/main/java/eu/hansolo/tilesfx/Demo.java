@@ -16,6 +16,13 @@
 
 package eu.hansolo.tilesfx;
 
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+
 import eu.hansolo.tilesfx.Tile.ChartType;
 import eu.hansolo.tilesfx.Tile.MapProvider;
 import eu.hansolo.tilesfx.Tile.SkinType;
@@ -31,9 +38,6 @@ import eu.hansolo.tilesfx.tools.FlowGridPane;
 import eu.hansolo.tilesfx.tools.Helper;
 import eu.hansolo.tilesfx.tools.Location;
 import eu.hansolo.tilesfx.tools.TreeNode;
-import eu.hansolo.tilesfx.weather.DarkSky;
-import eu.hansolo.tilesfx.weather.DarkSky.Language;
-import eu.hansolo.tilesfx.weather.DarkSky.Unit;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.property.DoubleProperty;
@@ -56,13 +60,6 @@ import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
-
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
 
 /**
  * User: hansolo
@@ -210,9 +207,9 @@ public class Demo extends Application {
         timeSection.setOnTimeSectionEntered(e -> System.out.println("Section ACTIVE"));
         timeSection.setOnTimeSectionLeft(e -> System.out.println("Section INACTIVE"));
 
-        // Weather (You can get a DarkSky API key here: https://darksky.net/dev/ )
-        DarkSky darkSky = new DarkSky("c5ee106f1fc3a24ea36b89e5188e97d8", Unit.CA, Language.ENGLISH, 51.911858, 7.632815);
-        darkSky.update();
+        // // Weather (You can get a DarkSky API key here: https://darksky.net/dev/ )
+        // DarkSky darkSky = new DarkSky("c5ee106f1fc3a24ea36b89e5188e97d8", Unit.CA, Language.ENGLISH, 51.911858, 7.632815);
+        // darkSky.update();
 
         // BarChart Items
         barChartItem1 = new BarChartItem("Gerrit", 47, Tile.BLUE);
@@ -394,14 +391,14 @@ public class Demo extends Application {
                 .textVisible(false)
                 .build();
 
-        // Update the weather information by calling weatherTile.updateWeather()
-        weatherTile = TileBuilder.create()
-                .skinType(SkinType.WEATHER)
-                .prefSize(TILE_WIDTH, TILE_HEIGHT)
-                .title("YOUR CITY NAME")
-                .text("Whatever text")
-                .darkSky(darkSky)
-                .build();
+        // // Update the weather information by calling weatherTile.updateWeather()
+        // weatherTile = TileBuilder.create()
+        // .skinType(SkinType.WEATHER)
+        // .prefSize(TILE_WIDTH, TILE_HEIGHT)
+        // .title("YOUR CITY NAME")
+        // .text("Whatever text")
+        // .darkSky(darkSky)
+        // .build();
 
         timeTile = TileBuilder.create()
                 .skinType(SkinType.TIME)
@@ -780,7 +777,7 @@ public class Demo extends Application {
                 gaugeSparkLineTile, radarChartTile1, radarChartTile2,
                 smoothAreaChartTile, countryTile, ephemerisTile, characterTile,
                 flipTile, switchSliderTile, dateTile, calendarTile, sunburstTile,
-                matrixTile, radialPercentageTile, weatherTile);
+                matrixTile, radialPercentageTile/* , weatherTile */);
 
         pane.setHgap(5);
         pane.setVgap(5);

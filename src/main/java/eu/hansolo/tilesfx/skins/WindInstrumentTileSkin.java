@@ -16,6 +16,13 @@
 
 package eu.hansolo.tilesfx.skins;
 
+import static eu.hansolo.tilesfx.tools.Helper.enableNode;
+
+import java.util.List;
+import java.util.Locale;
+
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import eu.hansolo.tilesfx.Section;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.fonts.Fonts;
@@ -36,15 +43,10 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 
-import java.util.List;
-import java.util.Locale;
-
-import static eu.hansolo.tilesfx.tools.Helper.enableNode;
-
 /**
  * Created by hansolo on 03.03.17.
  */
-public class CircularProgressTileSkin extends TileSkin {
+public class WindInstrumentTileSkin extends TileSkin {
 
     private static final double ANGLE_RANGE = 360;
     private double size;
@@ -72,7 +74,7 @@ public class CircularProgressTileSkin extends TileSkin {
     private InvalidationListener currentValueListener;
 
     // ******************** Constructors **************************************
-    public CircularProgressTileSkin(Tile TILE) {
+    public WindInstrumentTileSkin(Tile TILE) {
 
         super(TILE);
 
@@ -160,11 +162,7 @@ public class CircularProgressTileSkin extends TileSkin {
         graphicContainer.setMinSize(size * 0.9, tile.isTextVisible() ? size * 0.72 : size * 0.795);
         graphicContainer.setMaxSize(size * 0.9, tile.isTextVisible() ? size * 0.72 : size * 0.795);
         graphicContainer.setPrefSize(size * 0.9, tile.isTextVisible() ? size * 0.72 : size * 0.795);
-        if (null == tile.getGraphic()) {
-            enableNode(graphicContainer, false);
-        } else {
-            graphicContainer.getChildren().setAll(tile.getGraphic());
-        }
+        graphicContainer.getChildren().setAll(new FontAwesomeIconView(FontAwesomeIcon.CHEVRON_UP));
 
         getPane().getChildren().addAll(barBackground, bar, separator, titleText, text, graphicContainer, percentageFlow, valueUnitFlow);
     }
@@ -201,8 +199,10 @@ public class CircularProgressTileSkin extends TileSkin {
     private void setBar(final double VALUE) {
 
         if (minValue > 0) {
+            bar.setStartAngle((360 - (((minValue - VALUE) / 2) * angleStep)) + 90);
             bar.setLength((minValue - VALUE) * angleStep);
         } else {
+            bar.setStartAngle((360 - (-VALUE / 2) * angleStep) + 90);
             bar.setLength(-VALUE * angleStep);
         }
         setBarColor(VALUE);

@@ -16,11 +16,20 @@
 
 package eu.hansolo.tilesfx;
 
+import java.text.NumberFormat;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+
 import eu.hansolo.tilesfx.Tile.ChartType;
 import eu.hansolo.tilesfx.Tile.MapProvider;
 import eu.hansolo.tilesfx.Tile.SkinType;
 import eu.hansolo.tilesfx.Tile.TextSize;
 import eu.hansolo.tilesfx.Tile.TileColor;
+import eu.hansolo.tilesfx.Tile.Version;
+import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.chart.RadarChart;
 import eu.hansolo.tilesfx.chart.SunburstChart.TextOrientation;
 import eu.hansolo.tilesfx.chart.SunburstChart.VisibleData;
@@ -30,12 +39,10 @@ import eu.hansolo.tilesfx.events.TileEventListener;
 import eu.hansolo.tilesfx.events.TimeEventListener;
 import eu.hansolo.tilesfx.skins.BarChartItem;
 import eu.hansolo.tilesfx.skins.LeaderBoardItem;
-import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.tools.Country;
 import eu.hansolo.tilesfx.tools.CountryGroup;
 import eu.hansolo.tilesfx.tools.Location;
 import eu.hansolo.tilesfx.tools.TreeNode;
-import eu.hansolo.tilesfx.weather.DarkSky;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -61,873 +68,1069 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Stop;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
-
-import java.text.NumberFormat;
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-
+import tk.plogitech.darksky.forecast.model.DailyDataPoint;
 
 /**
  * Created by hansolo on 13.12.15.
  */
 public class TileBuilder<B extends TileBuilder<B>> {
+
     private HashMap<String, Property> properties = new HashMap<>();
 
-
     // ******************** Constructors **************************************
-    protected TileBuilder() {}
+    protected TileBuilder() {
 
+    }
 
     // ******************** Methods *******************************************
     public static final TileBuilder create() {
+
         return new TileBuilder();
     }
 
     public final B skinType(final SkinType TYPE) {
+
         properties.put("skinType", new SimpleObjectProperty<>(TYPE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B value(final double VALUE) {
+
         properties.put("value", new SimpleDoubleProperty(VALUE));
         return (B) this;
     }
 
     public final B minValue(final double VALUE) {
+
         properties.put("minValue", new SimpleDoubleProperty(VALUE));
         return (B) this;
     }
 
     public final B maxValue(final double VALUE) {
+
         properties.put("maxValue", new SimpleDoubleProperty(VALUE));
         return (B) this;
     }
 
     public final B threshold(final double VALUE) {
+
         properties.put("threshold", new SimpleDoubleProperty(VALUE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B referenceValue(final double VALUE) {
+
         properties.put("referenceValue", new SimpleDoubleProperty(VALUE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B autoReferenceValue(final boolean AUTO_REFERENCE_VALUE) {
+
         properties.put("autoReferenceValue", new SimpleBooleanProperty(AUTO_REFERENCE_VALUE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B decimals(final int DECIMALS) {
+
         properties.put("decimals", new SimpleIntegerProperty(DECIMALS));
         return (B) this;
     }
 
     public final B tickLabelDecimals(final int DECIMALS) {
+
         properties.put("tickLabelDecimals", new SimpleIntegerProperty(DECIMALS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B title(final String TITLE) {
+
         properties.put("title", new SimpleStringProperty(TITLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B titleAlignment(final TextAlignment ALIGNMENT) {
+
         properties.put("titleAlignment", new SimpleObjectProperty(ALIGNMENT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B description(final String SUBTITLE) {
+
         properties.put("description", new SimpleStringProperty(SUBTITLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B descriptionAlignment(final Pos ALIGNMENT) {
+
         properties.put("descriptionAlignment", new SimpleObjectProperty(ALIGNMENT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B unit(final String UNIT) {
+
         properties.put("unit", new SimpleStringProperty(UNIT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B duration(final LocalTime DURATION) {
+
         properties.put("duration", new SimpleObjectProperty(DURATION));
-        return (B)this;
+        return (B) this;
     }
 
     public final B selected(final boolean SELECTED) {
+
         properties.put("selected", new SimpleBooleanProperty(SELECTED));
-        return (B)this;
+        return (B) this;
     }
 
     public final B averagingEnabled(final boolean ENABLED) {
+
         properties.put("averagingEnabled", new SimpleBooleanProperty(ENABLED));
-        return (B)this;
+        return (B) this;
     }
 
     public final B averagingPeriod(final int PERIOD) {
+
         properties.put("averagingPeriod", new SimpleIntegerProperty(PERIOD));
-        return (B)this;
+        return (B) this;
     }
 
     public final B foregroundBaseColor(final Color COLOR) {
+
         properties.put("foregroundBaseColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B startFromZero(final boolean START) {
+
         properties.put("startFromZero", new SimpleBooleanProperty(START));
-        return (B)this;
+        return (B) this;
     }
 
     public final B returnToZero(final boolean RETURN) {
+
         properties.put("returnToZero", new SimpleBooleanProperty(RETURN));
-        return (B)this;
+        return (B) this;
     }
 
     public final B minMeasuredValueVisible(final boolean VISIBLE) {
+
         properties.put("minMeasuredValueVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B maxMeasuredValueVisible(final boolean VISIBLE) {
+
         properties.put("maxMeasuredValueVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B oldValueVisible(final boolean VISIBLE) {
+
         properties.put("oldValueVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B valueVisible(final boolean VISIBLE) {
+
         properties.put("valueVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B foregroundColor(final Color COLOR) {
+
         properties.put("foregroundColor", new SimpleObjectProperty(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B backgroundColor(final Color COLOR) {
+
         properties.put("backgroundColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B borderColor(final Color COLOR) {
+
         properties.put("borderColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B borderWidth(final double WIDTH) {
+
         properties.put("borderWidth", new SimpleDoubleProperty(WIDTH));
-        return (B)this;
+        return (B) this;
     }
 
     public final B knobColor(final Color COLOR) {
+
         properties.put("knobColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B activeColor(final Color COLOR) {
+
         properties.put("activeColor", new SimpleObjectProperty(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B animated(final boolean ANIMATED) {
+
         properties.put("animated", new SimpleBooleanProperty(ANIMATED));
-        return (B)this;
+        return (B) this;
     }
 
     public final B animationDuration(final long DURATION) {
+
         properties.put("animationDuration", new SimpleLongProperty(DURATION));
-        return (B)this;
+        return (B) this;
     }
 
     public final B startAngle(final double ANGLE) {
+
         properties.put("startAngle", new SimpleDoubleProperty(ANGLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B angleRange(final double RANGE) {
+
         properties.put("angleRange", new SimpleDoubleProperty(RANGE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B autoScale(final boolean AUTO_SCALE) {
+
         properties.put("autoScale", new SimpleBooleanProperty(AUTO_SCALE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B needleColor(final Color COLOR) {
+
         properties.put("needleColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B needleBorderColor(final Color COLOR) {
+
         properties.put("needleBorderColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B barColor(final Color COLOR) {
+
         properties.put("barColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B barBorderColor(final Color COLOR) {
+
         properties.put("barBorderColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B barBackgroundColor(final Color COLOR) {
+
         properties.put("barBackgroundColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B locale(final Locale LOCALE) {
+
         properties.put("locale", new SimpleObjectProperty<>(LOCALE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B numberFormat(final NumberFormat FORMAT) {
+
         properties.put("numberFormat", new SimpleObjectProperty<>(FORMAT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B shadowsEnabled(final boolean ENABLED) {
+
         properties.put("shadowsEnabled", new SimpleBooleanProperty(ENABLED));
-        return (B)this;
+        return (B) this;
     }
 
     public final B styleClass(final String... STYLES) {
+
         properties.put("styleClass", new SimpleObjectProperty<>(STYLES));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sections(final Section... SECTIONS) {
+
         properties.put("sectionsArray", new SimpleObjectProperty<>(SECTIONS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sections(final List<Section> SECTIONS) {
+
         properties.put("sectionsList", new SimpleObjectProperty<>(SECTIONS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B series(final Series<String, Number>... SERIES) {
+
         properties.put("seriesArray", new SimpleObjectProperty(SERIES));
-        return (B)this;
+        return (B) this;
     }
 
     public final B series(final List<Series<String, Number>> SERIES) {
+
         properties.put("seriesList", new SimpleObjectProperty(SERIES));
-        return (B)this;
+        return (B) this;
     }
 
     public final B tilesFxSeries(final TilesFXSeries<String, Number>... SERIES) {
+
         properties.put("tilesFxSeriesArray", new SimpleObjectProperty(SERIES));
-        return (B)this;
+        return (B) this;
     }
 
     public final B tilesFxSeries(final List<TilesFXSeries<String, Number>> SERIES) {
+
         properties.put("tilesFxSeriesList", new SimpleObjectProperty(SERIES));
-        return (B)this;
+        return (B) this;
     }
 
     public final B chartType(final ChartType TYPE) {
+
         properties.put("chartType", new SimpleObjectProperty(TYPE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B tooltipTimeout(final double TIMEOUT) {
+
         properties.put("tooltipTimeout", new SimpleDoubleProperty(TIMEOUT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B barChartItems(final BarChartItem... ITEMS) {
+
         properties.put("barChartItemsArray", new SimpleObjectProperty<>(ITEMS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B barChartItems(final List<BarChartItem> ITEMS) {
+
         properties.put("barChartItemsList", new SimpleObjectProperty<>(ITEMS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B leaderBoardItems(final LeaderBoardItem... ITEMS) {
+
         properties.put("leaderBoardItemsArray", new SimpleObjectProperty<>(ITEMS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B leaderBoardItems(final List<LeaderBoardItem> ITEMS) {
+
         properties.put("leaderBoardItemsList", new SimpleObjectProperty<>(ITEMS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B chartData(final ChartData... DATA) {
+
         properties.put("chartDataArray", new SimpleObjectProperty(DATA));
-        return (B)this;
+        return (B) this;
     }
 
     public final B chartData(final List<ChartData> DATA) {
+
         properties.put("chartDataList", new SimpleObjectProperty(DATA));
-        return (B)this;
+        return (B) this;
     }
 
     public final B characters(final String... CHARACTERS) {
+
         properties.put("characterArray", new SimpleObjectProperty<>(CHARACTERS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B flipTimeInMS(final long TIME) {
+
         properties.put("flipTimeInMS", new SimpleLongProperty(TIME));
-        return (B)this;
+        return (B) this;
     }
 
     public final B flipText(final String TEXT) {
+
         properties.put("flipText", new SimpleStringProperty(TEXT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B titleColor(final Color COLOR) {
+
         properties.put("titleColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B descriptionColor(final Color COLOR) {
+
         properties.put("descriptionColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public B unitColor(final Color COLOR) {
+
         properties.put("unitColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public B valueColor(final Color COLOR) {
+
         properties.put("valueColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public B thresholdColor(final Color COLOR) {
+
         properties.put("thresholdColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B checkSectionsForValue(final boolean CHECK) {
+
         properties.put("checkSectionsForValue", new SimpleBooleanProperty(CHECK));
-        return (B)this;
+        return (B) this;
     }
 
     public final B checkThreshold(final boolean CHECK) {
+
         properties.put("checkThreshold", new SimpleBooleanProperty(CHECK));
-        return (B)this;
+        return (B) this;
     }
 
     public final B innerShadowEnabled(final boolean ENABLED) {
+
         properties.put("innerShadowEnabled", new SimpleBooleanProperty(ENABLED));
-        return (B)this;
+        return (B) this;
     }
 
     public final B thresholdVisible(final boolean VISIBLE) {
+
         properties.put("thresholdVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B averageVisible(final boolean VISIBLE) {
+
         properties.put("averageVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sectionsVisible(final boolean VISIBLE) {
+
         properties.put("sectionsVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sectionsAlwaysVisible(final boolean VISIBLE) {
+
         properties.put("sectionsAlwaysVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sectionTextVisible(final boolean VISIBLE) {
+
         properties.put("sectionTextVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sectionIconsVisible(final boolean VISIBLE) {
+
         properties.put("sectionIconsVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B highlightSections(final boolean HIGHLIGHT) {
+
         properties.put("highlightSections", new SimpleBooleanProperty(HIGHLIGHT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B orientation(final Orientation ORIENTATION) {
+
         properties.put("orientation", new SimpleObjectProperty<>(ORIENTATION));
-        return (B)this;
+        return (B) this;
     }
 
     public final B customFontEnabled(final boolean ENABLED) {
+
         properties.put("customFontEnabled", new SimpleBooleanProperty(ENABLED));
-        return (B)this;
+        return (B) this;
     }
 
     public final B customFont(final Font FONT) {
+
         properties.put("customFont", new SimpleObjectProperty(FONT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B alertMessage(final String MESSAGE) {
+
         properties.put("alertMessage", new SimpleStringProperty(MESSAGE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B smoothing(final boolean SMOOTHING) {
+
         properties.put("smoothing", new SimpleBooleanProperty(SMOOTHING));
-        return (B)this;
+        return (B) this;
     }
 
     public final B onValueChanged(final InvalidationListener LISTENER) {
+
         properties.put("onValueChanged", new SimpleObjectProperty<>(LISTENER));
-        return (B)this;
+        return (B) this;
     }
 
     public final B onThresholdExceeded(final TileEventListener HANDLER) {
+
         properties.put("onThresholdExceeded", new SimpleObjectProperty<>(HANDLER));
-        return (B)this;
+        return (B) this;
     }
 
     public final B onThresholdUnderrun(final TileEventListener HANDLER) {
+
         properties.put("onThresholdUnderrun", new SimpleObjectProperty<>(HANDLER));
-        return (B)this;
+        return (B) this;
     }
 
     public final B time(final ZonedDateTime TIME) {
+
         properties.put("time", new SimpleObjectProperty<>(TIME));
-        return (B)this;
+        return (B) this;
     }
 
     public final B text(final String TEXT) {
+
         properties.put("text", new SimpleStringProperty(TEXT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B textAlignment(final TextAlignment ALIGNMENT) {
+
         properties.put("textAlignment", new SimpleObjectProperty(ALIGNMENT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B timeSections(final TimeSection... SECTIONS) {
+
         properties.put("timeSectionsArray", new SimpleObjectProperty<>(SECTIONS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B timeSections(final List<TimeSection> SECTIONS) {
+
         properties.put("timeSectionsList", new SimpleObjectProperty<>(SECTIONS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B discreteSeconds(final boolean DISCRETE) {
+
         properties.put("discreteSeconds", new SimpleBooleanProperty(DISCRETE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B discreteMinutes(final boolean DISCRETE) {
+
         properties.put("discreteMinutes", new SimpleBooleanProperty(DISCRETE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B discreteHours(final boolean DISCRETE) {
+
         properties.put("discreteHours", new SimpleBooleanProperty(DISCRETE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B secondsVisible(final boolean VISIBLE) {
+
         properties.put("secondsVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B textVisible(final boolean VISIBLE) {
+
         properties.put("textVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B dateVisible(final boolean VISIBLE) {
+
         properties.put("dateVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B running(final boolean RUNNING) {
+
         properties.put("running", new SimpleBooleanProperty(RUNNING));
-        return (B)this;
+        return (B) this;
     }
 
     public final B textColor(final Color COLOR) {
+
         properties.put("textColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B dateColor(final Color COLOR) {
+
         properties.put("dateColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B hourTickMarkColor(final Color COLOR) {
+
         properties.put("hourTickMarkColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B minuteTickMarkColor(final Color COLOR) {
+
         properties.put("minuteTickMarkColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B alarmColor(final Color COLOR) {
+
         properties.put("alarmColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B hourTickMarksVisible(final boolean VISIBLE) {
+
         properties.put("hourTickMarksVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B minuteTickMarksVisible(final boolean VISIBLE) {
+
         properties.put("minuteTickMarksVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B hourColor(final Color COLOR) {
+
         properties.put("hourColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B minuteColor(final Color COLOR) {
+
         properties.put("minuteColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B secondColor(final Color COLOR) {
+
         properties.put("secondColor", new SimpleObjectProperty<>(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B alarmsEnabled(final boolean ENABLED) {
+
         properties.put("alarmsEnabled", new SimpleBooleanProperty(ENABLED));
-        return (B)this;
+        return (B) this;
     }
 
     public final B alarmsVisible(final boolean VISIBLE) {
+
         properties.put("alarmsVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B tooltipText(final String TEXT) {
+
         properties.put("tooltipText", new SimpleStringProperty(TEXT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B alarms(final Alarm... ALARMS) {
+
         properties.put("alarmsArray", new SimpleObjectProperty<>(ALARMS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B alarms(final List<Alarm> ALARMS) {
+
         properties.put("alarmsList", new SimpleObjectProperty<>(ALARMS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B onAlarm(final AlarmEventListener LISTENER) {
+
         properties.put("onAlarm", new SimpleObjectProperty<>(LISTENER));
-        return (B)this;
+        return (B) this;
     }
 
     public final B onTimeEvent(final TimeEventListener LISTENER) {
+
         properties.put("onTimeEvent", new SimpleObjectProperty<>(LISTENER));
-        return (B)this;
+        return (B) this;
     }
 
     public final B increment(final double INCREMENT) {
+
         properties.put("increment", new SimpleDoubleProperty(INCREMENT));
-        return (B)this;
+        return (B) this;
     }
 
-    public final B darkSky(final DarkSky DARK_SKY) {
-        properties.put("darkSky", new SimpleObjectProperty(DARK_SKY));
-        return (B)this;
+    public final B forecast(final DailyDataPoint forecast) {
+
+        properties.put("forecast", new SimpleObjectProperty(forecast));
+        return (B) this;
+    }
+
+    public final B forecastUnit(final String forecastUnit) {
+
+        properties.put("forecastUnit", new SimpleObjectProperty(forecastUnit));
+        return (B) this;
+    }
+
+    public final B forecastTimezone(final String forecastTimezone) {
+
+        properties.put("forecastTimezone", new SimpleObjectProperty(forecastTimezone));
+        return (B) this;
     }
 
     public final B graphic(final Node GRAPHIC) {
+
         properties.put("graphic", new SimpleObjectProperty(GRAPHIC));
-        return (B)this;
+        return (B) this;
     }
 
     public final B currentLocation(final Location LOCATION) {
+
         properties.put("currentLocation", new SimpleObjectProperty(LOCATION));
-        return (B)this;
+        return (B) this;
     }
 
     public final B pointsOfInterest(final Location... LOCATIONS) {
+
         properties.put("poiArray", new SimpleObjectProperty(LOCATIONS));
-        return (B)this;
+        return (B) this;
     }
+
     public final B pointsOfInterest(final List<Location> LOCATIONS) {
+
         properties.put("poiList", new SimpleObjectProperty(LOCATIONS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B track(final Location... LOCATIONS) {
+
         properties.put("trackArray", new SimpleObjectProperty(LOCATIONS));
-        return (B)this;
+        return (B) this;
     }
+
     public final B track(final List<Location> LOCATIONS) {
+
         properties.put("trackList", new SimpleObjectProperty(LOCATIONS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B trackColor(final TileColor COLOR) {
+
         properties.put("trackColor", new SimpleObjectProperty(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B mapProvider(final MapProvider PROVIDER) {
+
         properties.put("mapProvider", new SimpleObjectProperty(PROVIDER));
-        return (B)this;
+        return (B) this;
     }
 
     public final B gradientStops(final Stop... STOPS) {
+
         properties.put("gradientStopsArray", new SimpleObjectProperty(STOPS));
-        return (B)this;
+        return (B) this;
     }
+
     public final B gradientStops(final List<Stop> STOPS) {
+
         properties.put("gradientStopsList", new SimpleObjectProperty(STOPS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B strokeWithGradient(final boolean STROKE_WITH_GRADIENT) {
+
         properties.put("strokeWithGradient", new SimpleBooleanProperty(STROKE_WITH_GRADIENT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B fillWithGradient(final boolean FILL_WITH_GRADIENT) {
+
         properties.put("fillWithGradient", new SimpleBooleanProperty(FILL_WITH_GRADIENT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B roundedCorners(final boolean ROUNDED) {
+
         properties.put("roundedCorners", new SimpleBooleanProperty(ROUNDED));
-        return (B)this;
+        return (B) this;
     }
 
     public final B textSize(final TextSize SIZE) {
+
         properties.put("textSize", new SimpleObjectProperty(SIZE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B xAxis(final Axis AXIS) {
+
         properties.put("xAxis", new SimpleObjectProperty(AXIS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B yAxis(final Axis AXIS) {
+
         properties.put("yAxis", new SimpleObjectProperty(AXIS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B radarChartMode(final RadarChart.Mode MODE) {
-       properties.put("radarChartMode", new SimpleObjectProperty(MODE));
-       return (B)this;
+
+        properties.put("radarChartMode", new SimpleObjectProperty(MODE));
+        return (B) this;
     }
 
     public final B chartGridColor(final Color COLOR) {
+
         properties.put("chartGridColor", new SimpleObjectProperty(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B country(final Country COUNTRY) {
+
         properties.put("country", new SimpleObjectProperty(COUNTRY));
-        return (B)this;
+        return (B) this;
     }
 
     public final B countryGroup(final CountryGroup COUNTRY_GROUP) {
+
         properties.put("countryGroup", new SimpleObjectProperty(COUNTRY_GROUP));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sortedData(final boolean SORTED) {
+
         properties.put("sortedData", new SimpleBooleanProperty(SORTED));
-        return (B)this;
+        return (B) this;
     }
 
     public final B dataPointsVisible(final boolean VISIBLE) {
+
         properties.put("dataPointsVisible", new SimpleBooleanProperty(VISIBLE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sunburstTree(final TreeNode TREE) {
+
         properties.put("sunburstTree", new SimpleObjectProperty(TREE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sunburstBackgroundColor(final Color COLOR) {
+
         properties.put("sunburstBackgroundColor", new SimpleObjectProperty(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sunburstTextColor(final Color COLOR) {
+
         properties.put("sunburstTextColor", new SimpleObjectProperty(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sunburstUseColorFromParent(final boolean USE) {
+
         properties.put("sunburstUseColorFromParent", new SimpleBooleanProperty(USE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sunburstTextOrientation(final TextOrientation ORIENTATION) {
+
         properties.put("sunburstTextOrientation", new SimpleObjectProperty(ORIENTATION));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sunburstVisibleData(final VisibleData VISIBLE_DATA) {
+
         properties.put("sunburstVisibleData", new SimpleObjectProperty(VISIBLE_DATA));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sunburstInteractive(final boolean INTERACTIVE) {
+
         properties.put("sunburstInteractive", new SimpleBooleanProperty(INTERACTIVE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sunburstAutoTextColor(final boolean AUTOMATIC) {
+
         properties.put("sunburstAutoTextColor", new SimpleBooleanProperty(AUTOMATIC));
-        return (B)this;
+        return (B) this;
     }
 
     public final B sunburstUseChartDataTextColor(final boolean USE) {
+
         properties.put("sunburstUseChartDataTextColor", new SimpleBooleanProperty(USE));
-        return (B)this;
+        return (B) this;
     }
 
     public final B snapToTicks(final boolean SNAP) {
+
         properties.put("snapToTicks", new SimpleBooleanProperty(SNAP));
-        return (B)this;
+        return (B) this;
     }
 
     public final B minorTickCount(final int COUNT) {
+
         properties.put("minorTickCount", new SimpleIntegerProperty(COUNT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B majorTickUnit(final double UNIT) {
+
         properties.put("majorTickUnit", new SimpleDoubleProperty(UNIT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B matrixSize(final int COLS, final int ROWS) {
+
         properties.put("matrixSize", null);
         properties.put("matrixColumns", new SimpleIntegerProperty(COLS));
         properties.put("matrixRows", new SimpleIntegerProperty(ROWS));
-        return (B)this;
+        return (B) this;
     }
 
     public final B notificationBackgroundColor(final Color COLOR) {
+
         properties.put("notificationBackgroundColor", new SimpleObjectProperty(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B notificationForegroundColor(final Color COLOR) {
+
         properties.put("notificationForegroundColor", new SimpleObjectProperty(COLOR));
-        return (B)this;
+        return (B) this;
     }
 
     public final B showNotifier(final boolean SHOW) {
+
         properties.put("showNotifier", new SimpleBooleanProperty(SHOW));
-        return (B)this;
+        return (B) this;
     }
 
     public final B prefSize(final double WIDTH, final double HEIGHT) {
+
         properties.put("prefSize", new SimpleObjectProperty<>(new Dimension2D(WIDTH, HEIGHT)));
-        return (B)this;
+        return (B) this;
     }
+
     public final B minSize(final double WIDTH, final double HEIGHT) {
+
         properties.put("minSize", new SimpleObjectProperty<>(new Dimension2D(WIDTH, HEIGHT)));
-        return (B)this;
+        return (B) this;
     }
+
     public final B maxSize(final double WIDTH, final double HEIGHT) {
+
         properties.put("maxSize", new SimpleObjectProperty<>(new Dimension2D(WIDTH, HEIGHT)));
-        return (B)this;
+        return (B) this;
     }
 
     public final B prefWidth(final double PREF_WIDTH) {
+
         properties.put("prefWidth", new SimpleDoubleProperty(PREF_WIDTH));
-        return (B)this;
+        return (B) this;
     }
+
     public final B prefHeight(final double PREF_HEIGHT) {
+
         properties.put("prefHeight", new SimpleDoubleProperty(PREF_HEIGHT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B minWidth(final double MIN_WIDTH) {
+
         properties.put("minWidth", new SimpleDoubleProperty(MIN_WIDTH));
-        return (B)this;
+        return (B) this;
     }
+
     public final B minHeight(final double MIN_HEIGHT) {
+
         properties.put("minHeight", new SimpleDoubleProperty(MIN_HEIGHT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B maxWidth(final double MAX_WIDTH) {
+
         properties.put("maxWidth", new SimpleDoubleProperty(MAX_WIDTH));
-        return (B)this;
+        return (B) this;
     }
+
     public final B maxHeight(final double MAX_HEIGHT) {
+
         properties.put("maxHeight", new SimpleDoubleProperty(MAX_HEIGHT));
-        return (B)this;
+        return (B) this;
     }
 
     public final B scaleX(final double SCALE_X) {
+
         properties.put("scaleX", new SimpleDoubleProperty(SCALE_X));
-        return (B)this;
+        return (B) this;
     }
+
     public final B scaleY(final double SCALE_Y) {
+
         properties.put("scaleY", new SimpleDoubleProperty(SCALE_Y));
-        return (B)this;
+        return (B) this;
     }
 
     public final B layoutX(final double LAYOUT_X) {
+
         properties.put("layoutX", new SimpleDoubleProperty(LAYOUT_X));
-        return (B)this;
+        return (B) this;
     }
+
     public final B layoutY(final double LAYOUT_Y) {
+
         properties.put("layoutY", new SimpleDoubleProperty(LAYOUT_Y));
-        return (B)this;
+        return (B) this;
     }
 
     public final B translateX(final double TRANSLATE_X) {
+
         properties.put("translateX", new SimpleDoubleProperty(TRANSLATE_X));
-        return (B)this;
+        return (B) this;
     }
+
     public final B translateY(final double TRANSLATE_Y) {
+
         properties.put("translateY", new SimpleDoubleProperty(TRANSLATE_Y));
-        return (B)this;
+        return (B) this;
     }
 
     public final B padding(final Insets INSETS) {
+
         properties.put("padding", new SimpleObjectProperty<>(INSETS));
-        return (B)this;
+        return (B) this;
+    }
+    
+
+    public TileBuilder version(Version version) {
+
+        properties.put("version", new SimpleObjectProperty<>(version));
+        return (B) this;
     }
 
     public final Tile build() {
+
         final Tile CONTROL;
         if (properties.containsKey("skinType")) {
             SkinType skinType = ((ObjectProperty<SkinType>) properties.get("skinType")).get();
@@ -1003,6 +1206,10 @@ public class TileBuilder<B extends TileBuilder<B>> {
                     CONTROL.setBarBackgroundColor(CONTROL.getBackgroundColor().brighter());
                     CONTROL.setAnimated(true);
                     break;
+                case WIND_INSTRUMENT:
+                    CONTROL.setBarBackgroundColor(CONTROL.getBackgroundColor().brighter());
+                    CONTROL.setAnimated(true);
+                    break;
                 case STOCK:
                     CONTROL.setAnimated(false);
                     CONTROL.setAveragingPeriod(720);
@@ -1060,7 +1267,7 @@ public class TileBuilder<B extends TileBuilder<B>> {
         if (properties.keySet().contains("sectionsArray")) {
             CONTROL.setSections(((ObjectProperty<Section[]>) properties.get("sectionsArray")).get());
         }
-        if(properties.keySet().contains("sectionsList")) {
+        if (properties.keySet().contains("sectionsList")) {
             CONTROL.setSections(((ObjectProperty<List<Section>>) properties.get("sectionsList")).get());
         }
 
@@ -1068,7 +1275,7 @@ public class TileBuilder<B extends TileBuilder<B>> {
             CONTROL.setCharacters(((ObjectProperty<String[]>) properties.get("characterArray")).get());
         }
 
-        if(properties.keySet().contains("foregroundBaseColor")) {
+        if (properties.keySet().contains("foregroundBaseColor")) {
             CONTROL.setForegroundBaseColor(((ObjectProperty<Color>) properties.get("foregroundBaseColor")).get());
         }
 
@@ -1082,14 +1289,14 @@ public class TileBuilder<B extends TileBuilder<B>> {
         if (properties.keySet().contains("alarmsArray")) {
             CONTROL.setAlarms(((ObjectProperty<Alarm[]>) properties.get("alarmsArray")).get());
         }
-        if(properties.keySet().contains("alarmsList")) {
+        if (properties.keySet().contains("alarmsList")) {
             CONTROL.setAlarms(((ObjectProperty<List<Alarm>>) properties.get("alarmsList")).get());
         }
 
         if (properties.keySet().contains("timeSectionsArray")) {
             CONTROL.setTimeSections(((ObjectProperty<TimeSection[]>) properties.get("timeSectionsArray")).get());
         }
-        if(properties.keySet().contains("timeSectionsList")) {
+        if (properties.keySet().contains("timeSectionsList")) {
             CONTROL.setTimeSections(((ObjectProperty<List<TimeSection>>) properties.get("timeSectionsList")).get());
         }
 
@@ -1112,14 +1319,14 @@ public class TileBuilder<B extends TileBuilder<B>> {
         if (properties.keySet().contains("barChartItemsArray")) {
             CONTROL.setBarChartItems(((ObjectProperty<BarChartItem[]>) properties.get("barChartItemsArray")).get());
         }
-        if(properties.keySet().contains("barChartItemsList")) {
+        if (properties.keySet().contains("barChartItemsList")) {
             CONTROL.setBarChartItems(((ObjectProperty<List<BarChartItem>>) properties.get("barChartItemsList")).get());
         }
 
         if (properties.keySet().contains("leaderBoardItemsArray")) {
             CONTROL.setLeaderBoardItems(((ObjectProperty<LeaderBoardItem[]>) properties.get("leaderBoardItemsArray")).get());
         }
-        if(properties.keySet().contains("leaderBoardItemsList")) {
+        if (properties.keySet().contains("leaderBoardItemsList")) {
             CONTROL.setLeaderBoardItems(((ObjectProperty<List<LeaderBoardItem>>) properties.get("leaderBoardItemsList")).get());
         }
 
@@ -1150,32 +1357,35 @@ public class TileBuilder<B extends TileBuilder<B>> {
         if (properties.keySet().contains("trackList")) {
             CONTROL.setTrack(((ObjectProperty<List<Location>>) properties.get("trackList")).get());
         }
+        if (properties.keySet().contains("version")) {
+            CONTROL.setVersion(((ObjectProperty<Version>) properties.get("version")).get());
+        }
 
         for (String key : properties.keySet()) {
             if ("prefSize".equals(key)) {
                 Dimension2D dim = ((ObjectProperty<Dimension2D>) properties.get(key)).get();
                 CONTROL.setPrefSize(dim.getWidth(), dim.getHeight());
-            } else if("minSize".equals(key)) {
+            } else if ("minSize".equals(key)) {
                 Dimension2D dim = ((ObjectProperty<Dimension2D>) properties.get(key)).get();
                 CONTROL.setMinSize(dim.getWidth(), dim.getHeight());
-            } else if("maxSize".equals(key)) {
+            } else if ("maxSize".equals(key)) {
                 Dimension2D dim = ((ObjectProperty<Dimension2D>) properties.get(key)).get();
                 CONTROL.setMaxSize(dim.getWidth(), dim.getHeight());
-            } else if("prefWidth".equals(key)) {
+            } else if ("prefWidth".equals(key)) {
                 CONTROL.setPrefWidth(((DoubleProperty) properties.get(key)).get());
-            } else if("prefHeight".equals(key)) {
+            } else if ("prefHeight".equals(key)) {
                 CONTROL.setPrefHeight(((DoubleProperty) properties.get(key)).get());
-            } else if("minWidth".equals(key)) {
+            } else if ("minWidth".equals(key)) {
                 CONTROL.setMinWidth(((DoubleProperty) properties.get(key)).get());
-            } else if("minHeight".equals(key)) {
+            } else if ("minHeight".equals(key)) {
                 CONTROL.setMinHeight(((DoubleProperty) properties.get(key)).get());
-            } else if("maxWidth".equals(key)) {
+            } else if ("maxWidth".equals(key)) {
                 CONTROL.setMaxWidth(((DoubleProperty) properties.get(key)).get());
-            } else if("maxHeight".equals(key)) {
+            } else if ("maxHeight".equals(key)) {
                 CONTROL.setMaxHeight(((DoubleProperty) properties.get(key)).get());
-            } else if("scaleX".equals(key)) {
+            } else if ("scaleX".equals(key)) {
                 CONTROL.setScaleX(((DoubleProperty) properties.get(key)).get());
-            } else if("scaleY".equals(key)) {
+            } else if ("scaleY".equals(key)) {
                 CONTROL.setScaleY(((DoubleProperty) properties.get(key)).get());
             } else if ("layoutX".equals(key)) {
                 CONTROL.setLayoutX(((DoubleProperty) properties.get(key)).get());
@@ -1187,36 +1397,36 @@ public class TileBuilder<B extends TileBuilder<B>> {
                 CONTROL.setTranslateY(((DoubleProperty) properties.get(key)).get());
             } else if ("padding".equals(key)) {
                 CONTROL.setPadding(((ObjectProperty<Insets>) properties.get(key)).get());
-            } else if("styleClass".equals(key)) {
+            } else if ("styleClass".equals(key)) {
                 CONTROL.getStyleClass().setAll("tile");
                 CONTROL.getStyleClass().addAll(((ObjectProperty<String[]>) properties.get(key)).get());
             } else if ("autoScale".equals(key)) {
                 CONTROL.setAutoScale(((BooleanProperty) properties.get(key)).get());
-            } else if("value".equals(key)) {
+            } else if ("value".equals(key)) {
                 CONTROL.setValue(((DoubleProperty) properties.get(key)).get());
-            } else if("decimals".equals(key)) {
+            } else if ("decimals".equals(key)) {
                 CONTROL.setDecimals(((IntegerProperty) properties.get(key)).get());
-            } else if("tickLabelDecimals".equals(key)) {
+            } else if ("tickLabelDecimals".equals(key)) {
                 CONTROL.setTickLabelDecimals(((IntegerProperty) properties.get(key)).get());
-            } else if("title".equals(key)) {
+            } else if ("title".equals(key)) {
                 CONTROL.setTitle(((StringProperty) properties.get(key)).get());
-            } else if("titleAlignment".equals(key)) {
+            } else if ("titleAlignment".equals(key)) {
                 CONTROL.setTitleAlignment(((ObjectProperty<TextAlignment>) properties.get(key)).get());
-            } else if("description".equals(key)) {
+            } else if ("description".equals(key)) {
                 CONTROL.setDescription(((StringProperty) properties.get(key)).get());
             } else if ("descriptionAlignment".equals(key)) {
                 CONTROL.setDescriptionAlignment(((ObjectProperty<Pos>) properties.get(key)).get());
-            } else if("unit".equals(key)) {
+            } else if ("unit".equals(key)) {
                 CONTROL.setUnit(((StringProperty) properties.get(key)).get());
             } else if ("selected".equals(key)) {
                 CONTROL.setActive(((BooleanProperty) properties.get(key)).get());
-            } else if("averagingEnabled".equals(key)) {
+            } else if ("averagingEnabled".equals(key)) {
                 CONTROL.setAveragingEnabled(((BooleanProperty) properties.get(key)).get());
-            } else if("averagingPeriod".equals(key)) {
+            } else if ("averagingPeriod".equals(key)) {
                 CONTROL.setAveragingPeriod(((IntegerProperty) properties.get(key)).get());
-            } else if("startFromZero".equals(key)) {
+            } else if ("startFromZero".equals(key)) {
                 CONTROL.setStartFromZero(((BooleanProperty) properties.get(key)).get());
-            } else if("returnToZero".equals(key)) {
+            } else if ("returnToZero".equals(key)) {
                 CONTROL.setReturnToZero(((BooleanProperty) properties.get(key)).get());
             } else if ("minMeasuredValueVisible".equals(key)) {
                 CONTROL.setMinMeasuredValueVisible(((BooleanProperty) properties.get(key)).get());
@@ -1236,25 +1446,25 @@ public class TileBuilder<B extends TileBuilder<B>> {
                 CONTROL.setBorderWidth(((DoubleProperty) properties.get(key)).get());
             } else if ("knobColor".equals(key)) {
                 CONTROL.setKnobColor(((ObjectProperty<Color>) properties.get(key)).get());
-            } else if("animated".equals(key)) {
+            } else if ("animated".equals(key)) {
                 CONTROL.setAnimated(((BooleanProperty) properties.get(key)).get());
-            } else if("animationDuration".equals(key)) {
+            } else if ("animationDuration".equals(key)) {
                 CONTROL.setAnimationDuration(((LongProperty) properties.get(key)).get());
-            } else if("startAngle".equals(key)) {
+            } else if ("startAngle".equals(key)) {
                 CONTROL.setStartAngle(((DoubleProperty) properties.get(key)).get());
-            } else if("angleRange".equals(key)) {
+            } else if ("angleRange".equals(key)) {
                 CONTROL.setAngleRange(((DoubleProperty) properties.get(key)).get());
-            } else if("needleColor".equals(key)) {
+            } else if ("needleColor".equals(key)) {
                 CONTROL.setNeedleColor(((ObjectProperty<Color>) properties.get(key)).get());
-            } else if("barColor".equals(key)) {
+            } else if ("barColor".equals(key)) {
                 CONTROL.setBarColor(((ObjectProperty<Color>) properties.get(key)).get());
             } else if ("barBackgroundColor".equals(key)) {
                 CONTROL.setBarBackgroundColor(((ObjectProperty<Color>) properties.get(key)).get());
-            } else if("locale".equals(key)) {
+            } else if ("locale".equals(key)) {
                 CONTROL.setLocale(((ObjectProperty<Locale>) properties.get(key)).get());
-            } else if("numberFormat".equals(key)) {
+            } else if ("numberFormat".equals(key)) {
                 CONTROL.setNumberFormat(((ObjectProperty<NumberFormat>) properties.get(key)).get());
-            } else if("shadowsEnabled".equals(key)) {
+            } else if ("shadowsEnabled".equals(key)) {
                 CONTROL.setShadowsEnabled(((BooleanProperty) properties.get(key)).get());
             } else if ("style".equals(key)) {
                 CONTROL.setStyle(((StringProperty) properties.get(key)).get());
@@ -1360,8 +1570,12 @@ public class TileBuilder<B extends TileBuilder<B>> {
                 CONTROL.setIncrement(((DoubleProperty) properties.get(key)).get());
             } else if ("activeColor".equals(key)) {
                 CONTROL.setActiveColor(((ObjectProperty<Color>) properties.get(key)).get());
-            } else if ("darkSky".equals(key)) {
-                CONTROL.setDarkSky(((ObjectProperty<DarkSky>) properties.get(key)).get());
+            } else if ("forecast".equals(key)) {
+                CONTROL.setForecast(((ObjectProperty<DailyDataPoint>) properties.get(key)).get());
+            } else if ("forecastUnit".equals(key)) {
+                CONTROL.setForecastTempUnit(((ObjectProperty<String>) properties.get(key)).get());
+            } else if ("forecastTimezone".equals(key)) {
+                CONTROL.setForecastTimezone(((ObjectProperty<String>) properties.get(key)).get());
             } else if ("duration".equals(key)) {
                 CONTROL.setDuration(((ObjectProperty<LocalTime>) properties.get(key)).get());
             } else if ("strokeWithGradient".equals(key)) {
@@ -1412,7 +1626,7 @@ public class TileBuilder<B extends TileBuilder<B>> {
                 CONTROL.getSunburstChart().setUseColorFromParent(((BooleanProperty) properties.get(key)).get());
             } else if ("sunburstTextOrientation".equals(key)) {
                 CONTROL.getSunburstChart().setTextOrientation(((ObjectProperty<TextOrientation>) properties.get(key)).get());
-            } else if("sunburstVisibleData".equals(key)) {
+            } else if ("sunburstVisibleData".equals(key)) {
                 CONTROL.getSunburstChart().setVisibleData(((ObjectProperty<VisibleData>) properties.get(key)).get());
             } else if ("sunburstInteractive".equals(key)) {
                 CONTROL.getSunburstChart().setInteractive(((BooleanProperty) properties.get(key)).get());

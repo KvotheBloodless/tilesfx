@@ -143,6 +143,17 @@ public class DarkSky {
             widthFactor = WIDTH_FACTOR;
             heightFactor = HEIGHT_FACTOR;
         }
+
+        public static ConditionAndIcon fromValue(final String v) {
+
+            for (final ConditionAndIcon conditionAndIcon : values()) {
+
+                if (conditionAndIcon.value.compareTo(v) == 0)
+                    return conditionAndIcon;
+            }
+
+            throw new EnumConstantNotPresentException(ConditionAndIcon.class, v);
+        }
     }
 
     public enum PrecipType {

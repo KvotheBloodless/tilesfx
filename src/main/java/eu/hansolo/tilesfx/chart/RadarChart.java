@@ -1308,7 +1308,7 @@ public class RadarChart extends Region {
 
                 overlayCtx.setFont(font);
                 overlayCtx.setFill(annotation.getFill().orElse(getChartForegroundColor()));
-                overlayCtx.fillText(annotation.getText(), 0, size * 0.02);
+                overlayCtx.fillText(annotation.getText().get(), 0, size * 0.02);
 
                 overlayCtx.translate(0, offset);
             }

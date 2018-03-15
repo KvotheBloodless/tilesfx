@@ -1121,7 +1121,6 @@ public class TileBuilder<B extends TileBuilder<B>> {
         properties.put("padding", new SimpleObjectProperty<>(INSETS));
         return (B) this;
     }
-    
 
     public TileBuilder version(Version version) {
 

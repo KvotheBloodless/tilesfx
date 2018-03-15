@@ -1,36 +1,26 @@
-/*
- * Copyright (c) 2017 by Gerrit Grunwald
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package eu.hansolo.tilesfx.skins;
 
 import static eu.hansolo.tilesfx.tools.Helper.enableNode;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import eu.hansolo.tilesfx.Section;
 import eu.hansolo.tilesfx.Tile;
+import eu.hansolo.tilesfx.chart.ChartData;
+import eu.hansolo.tilesfx.events.ChartDataEventListener;
 import eu.hansolo.tilesfx.fonts.Fonts;
 import eu.hansolo.tilesfx.tools.Helper;
+import eu.hansolo.tilesfx.tools.Location;
 import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.VPos;
+import javafx.scene.CacheHint;
 import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -39,6 +29,7 @@ import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
@@ -56,29 +47,36 @@ public class WindInstrumentTileSkin extends TileSkin {
     private Line separator;
     private Text titleText;
     private Text text;
-    private Text percentageValueText;
-    private Text percentageUnitText;
-    private TextFlow percentageFlow;
+    private Text windSpeedText;
+    private Text windSpeedUnitText;
+    private TextFlow windSpeedFlow;
     private Text valueText;
-    private Text unitText;
     private TextFlow valueUnitFlow;
     private double minValue;
     private double range;
-    private double angleStep;
+    private double angleStep = 1;
     private boolean sectionsVisible;
     private List<Section> sections;
     private String formatString;
     private Locale locale;
     private StackPane graphicContainer;
     private ChangeListener graphicListener;
+    private ListChangeListener<ChartData> chartDataListener;
+    private ChartDataEventListener apparentAngleListener;
+    private ChartDataEventListener northDirectionListener;
     private InvalidationListener currentValueListener;
+
+    private Canvas overlayCanvas;
+    private GraphicsContext overlayCtx;
+
+    private Optional<Double> northAngle = Optional.empty();
 
     // ******************** Constructors **************************************
     public WindInstrumentTileSkin(Tile TILE) {
 
         super(TILE);
 
-        setBar(TILE.getCurrentValue());
+        setBar(TILE.getAngleRange());
     }
 
     // ******************** Initialization ************************************
@@ -91,17 +89,51 @@ public class WindInstrumentTileSkin extends TileSkin {
             tile.calcAutoScale();
         minValue = tile.getMinValue();
         range = tile.getRange();
-        angleStep = ANGLE_RANGE / range;
         sectionsVisible = tile.getSectionsVisible();
         sections = tile.getSections();
         formatString = new StringBuilder("%.").append(Integer.toString(tile.getDecimals())).append("f").toString();
         locale = tile.getLocale();
-        currentValueListener = o -> setBar(tile.getCurrentValue());
+
+        overlayCanvas = new Canvas(PREFERRED_WIDTH, PREFERRED_HEIGHT);
+        overlayCtx = overlayCanvas.getGraphicsContext2D();
 
         graphicListener = (o, ov, nv) -> {
             if (nv != null) {
                 graphicContainer.getChildren().setAll(tile.getGraphic());
             }
+        };
+
+        currentValueListener = o -> {
+
+            windSpeedText.setText(String.format(locale, formatString, tile.getCurrentValue()));
+        };
+
+        apparentAngleListener = e -> {
+
+            if (northAngle.isPresent()) {
+
+                double calculatedCardinal = e.getData().getValue() - northAngle.get();
+                if (calculatedCardinal < 0)
+                    calculatedCardinal += 360;
+                if (calculatedCardinal >= 360)
+                    calculatedCardinal -= 360;
+
+                valueText.setText(Location.CardinalDirection.from(calculatedCardinal).name());
+            }
+
+            redraw();
+        };
+
+        northDirectionListener = e -> {
+
+            northAngle = Optional.of(e.getData().getValue());
+
+            redraw();
+        };
+
+        chartDataListener = c -> {
+
+            redraw();
         };
 
         titleText = new Text();
@@ -130,47 +162,50 @@ public class WindInstrumentTileSkin extends TileSkin {
         separator.setStroke(tile.getBackgroundColor());
         separator.setFill(Color.TRANSPARENT);
 
-        percentageValueText = new Text(String.format(locale, formatString, tile.getCurrentValue()));
-        percentageValueText.setFont(Fonts.latoRegular(PREFERRED_WIDTH * 0.27333));
-        percentageValueText.setFill(tile.getValueColor());
-        percentageValueText.setTextOrigin(VPos.CENTER);
+        windSpeedText = new Text(String.format(locale, formatString, tile.getCurrentValue()));
+        windSpeedText.setFont(Fonts.latoRegular(PREFERRED_WIDTH * 0.27333));
+        windSpeedText.setFill(tile.getValueColor());
+        windSpeedText.setTextOrigin(VPos.CENTER);
 
-        percentageUnitText = new Text(tile.getUnit());
-        percentageUnitText = new Text("\u0025");
-        percentageUnitText.setFont(Fonts.latoLight(PREFERRED_WIDTH * 0.08));
-        percentageUnitText.setFill(tile.getUnitColor());
+        windSpeedUnitText = new Text(tile.getUnit());
+        windSpeedUnitText.setFont(Fonts.latoLight(PREFERRED_WIDTH * 0.08));
+        windSpeedUnitText.setFill(tile.getUnitColor());
 
-        percentageFlow = new TextFlow(percentageValueText, percentageUnitText);
-        percentageFlow.setTextAlignment(TextAlignment.CENTER);
+        windSpeedFlow = new TextFlow(windSpeedText, windSpeedUnitText);
+        windSpeedFlow.setTextAlignment(TextAlignment.CENTER);
 
-        valueText = new Text(String.format(locale, formatString, tile.getCurrentValue()));
+        valueText = new Text("N");
         valueText.setFont(Fonts.latoRegular(PREFERRED_WIDTH * 0.27333));
         valueText.setFill(tile.getValueColor());
         valueText.setTextOrigin(VPos.CENTER);
         enableNode(valueText, tile.isValueVisible());
 
-        unitText = new Text(tile.getUnit());
-        unitText = new Text("\u0025");
-        unitText.setFont(Fonts.latoLight(PREFERRED_WIDTH * 0.08));
-        unitText.setFill(tile.getUnitColor());
-        enableNode(unitText, !tile.getUnit().isEmpty());
-
-        valueUnitFlow = new TextFlow(valueText, unitText);
+        valueUnitFlow = new TextFlow(valueText);
         valueUnitFlow.setTextAlignment(TextAlignment.CENTER);
 
         graphicContainer = new StackPane();
         graphicContainer.setMinSize(size * 0.9, tile.isTextVisible() ? size * 0.72 : size * 0.795);
         graphicContainer.setMaxSize(size * 0.9, tile.isTextVisible() ? size * 0.72 : size * 0.795);
         graphicContainer.setPrefSize(size * 0.9, tile.isTextVisible() ? size * 0.72 : size * 0.795);
-        graphicContainer.getChildren().setAll(new FontAwesomeIconView(FontAwesomeIcon.CHEVRON_UP));
+        graphicContainer.getChildren().setAll(tile.getGraphic());
 
-        getPane().getChildren().addAll(barBackground, bar, separator, titleText, text, graphicContainer, percentageFlow, valueUnitFlow);
+        getPane().getChildren().addAll(barBackground, bar, separator, titleText, text, graphicContainer,
+                windSpeedFlow, valueUnitFlow, overlayCanvas);
     }
 
     @Override
     protected void registerListeners() {
 
         super.registerListeners();
+
+        // First element is apparent wind
+        tile.getChartData().stream().findFirst().ifPresent(chartData -> chartData.addChartDataEventListener(apparentAngleListener));
+
+        // Second element is north cardinal
+        tile.getChartData().stream().skip(1).findFirst().ifPresent(
+                chartData -> chartData.addChartDataEventListener(northDirectionListener));
+
+        tile.getChartData().addListener(chartDataListener);
         tile.currentValueProperty().addListener(currentValueListener);
         tile.graphicProperty().addListener(graphicListener);
     }
@@ -180,20 +215,6 @@ public class WindInstrumentTileSkin extends TileSkin {
     protected void handleEvents(final String EVENT_TYPE) {
 
         super.handleEvents(EVENT_TYPE);
-
-        if ("RECALC".equals(EVENT_TYPE)) {
-            minValue = tile.getMinValue();
-            range = tile.getRange();
-            angleStep = ANGLE_RANGE / range;
-            sections = tile.getSections();
-            redraw();
-            setBar(tile.getCurrentValue());
-        } else if ("VISIBILITY".equals(EVENT_TYPE)) {
-            enableNode(titleText, !tile.getTitle().isEmpty());
-            enableNode(text, tile.isTextVisible());
-            enableNode(unitText, !tile.getUnit().isEmpty());
-            enableNode(valueText, tile.isValueVisible());
-        }
     }
 
     private void setBar(final double VALUE) {
@@ -206,9 +227,6 @@ public class WindInstrumentTileSkin extends TileSkin {
             bar.setLength(-VALUE * angleStep);
         }
         setBarColor(VALUE);
-
-        percentageValueText.setText(String.format(locale, formatString, VALUE / range * 100.0));
-        valueText.setText(String.format(locale, formatString, VALUE));
     }
 
     private void setBarColor(final double VALUE) {
@@ -229,6 +247,8 @@ public class WindInstrumentTileSkin extends TileSkin {
     @Override
     public void dispose() {
 
+        tile.getChartData().removeListener(chartDataListener);
+        tile.getChartData().forEach(chartData -> chartData.removeChartDataEventListener(apparentAngleListener));
         tile.currentValueProperty().removeListener(currentValueListener);
         tile.graphicProperty().removeListener(graphicListener);
         super.dispose();
@@ -280,30 +300,24 @@ public class WindInstrumentTileSkin extends TileSkin {
     @Override
     protected void resizeDynamicText() {
 
-        double maxWidth = percentageUnitText.isVisible() ? chartSize * 0.7 : chartSize * 0.8;
+        double maxWidth = windSpeedUnitText.isVisible() ? chartSize * 0.7 : chartSize * 0.8;
         double fontSize = graphicContainer.isVisible() ? chartSize * 0.15 : chartSize * 0.2;
-        percentageValueText.setFont(Fonts.latoRegular(fontSize));
-        if (percentageValueText.getLayoutBounds().getWidth() > maxWidth) {
-            Helper.adjustTextSize(percentageValueText, maxWidth, fontSize);
+        windSpeedText.setFont(Fonts.latoRegular(fontSize));
+        if (windSpeedText.getLayoutBounds().getWidth() > maxWidth) {
+            Helper.adjustTextSize(windSpeedText, maxWidth, fontSize);
         }
 
         fontSize = graphicContainer.isVisible() ? chartSize * 0.07 : chartSize * 0.08;
-        percentageUnitText.setFont(Fonts.latoLight(fontSize));
-        if (percentageUnitText.getLayoutBounds().getWidth() > maxWidth) {
-            Helper.adjustTextSize(percentageUnitText, maxWidth, fontSize);
+        windSpeedUnitText.setFont(Fonts.latoLight(fontSize));
+        if (windSpeedUnitText.getLayoutBounds().getWidth() > maxWidth) {
+            Helper.adjustTextSize(windSpeedUnitText, maxWidth, fontSize);
         }
 
-        maxWidth = unitText.isVisible() ? chartSize * 0.3 : chartSize * 0.4;
+        maxWidth = chartSize * 0.4;
         fontSize = graphicContainer.isVisible() ? chartSize * 0.075 : chartSize * 0.1;
         valueText.setFont(Fonts.latoRegular(fontSize));
         if (valueText.getLayoutBounds().getWidth() > maxWidth) {
             Helper.adjustTextSize(valueText, maxWidth, fontSize);
-        }
-
-        fontSize = graphicContainer.isVisible() ? chartSize * 0.035 : chartSize * 0.04;
-        unitText.setFont(Fonts.latoLight(fontSize));
-        if (unitText.getLayoutBounds().getWidth() > maxWidth) {
-            Helper.adjustTextSize(unitText, maxWidth, fontSize);
         }
     }
 
@@ -376,8 +390,8 @@ public class WindInstrumentTileSkin extends TileSkin {
                 }
             }
             resizeStaticText();
-            percentageFlow.setPrefWidth(width * 0.9);
-            percentageFlow.relocate(width * 0.05,
+            windSpeedFlow.setPrefWidth(width * 0.9);
+            windSpeedFlow.relocate(width * 0.05,
                     graphicContainer.isVisible() ? bar.getCenterY() + chartSize * 0.12 : bar.getCenterY() - chartSize * 0.12);
 
             valueUnitFlow.setPrefWidth(width * 0.9);
@@ -396,19 +410,63 @@ public class WindInstrumentTileSkin extends TileSkin {
 
         barBackground.setStroke(tile.getBarBackgroundColor());
         setBarColor(tile.getCurrentValue());
-        percentageValueText.setFill(tile.getValueColor());
-        percentageUnitText.setFill(tile.getUnitColor());
+        windSpeedText.setFill(tile.getValueColor());
+        windSpeedUnitText.setFill(tile.getUnitColor());
         valueText.setFill(tile.getValueColor());
-        unitText.setFill(tile.getUnitColor());
         titleText.setFill(tile.getTitleColor());
         text.setFill(tile.getTextColor());
         separator.setStroke(tile.getBackgroundColor());
 
         titleText.setText(tile.getTitle());
         text.setText(tile.getText());
-        unitText.setText(tile.getUnit());
 
         resizeStaticText();
         resizeDynamicText();
+
+        // draw data
+        overlayCanvas.setCache(false);
+
+        drawOverlay();
+
+        overlayCanvas.setCache(true);
+        overlayCanvas.setCacheHint(CacheHint.QUALITY);
+
+    }
+
+    private void drawOverlay() {
+
+        final double CENTER_X = 0.5 * size;
+        final double CENTER_Y = CENTER_X;
+
+        // clear the chartCanvas
+        overlayCtx.clearRect(0, 0, size, size);
+
+        tile.getChartData().forEach(c -> {
+
+            overlayCtx.save();
+            overlayCtx.setTextAlign(TextAlignment.CENTER);
+            overlayCtx.setTextBaseline(VPos.CENTER);
+            overlayCtx.translate(CENTER_X, CENTER_Y);
+
+            overlayCtx.rotate(angleStep * c.getValue());
+
+            c.getAnnotations().forEach(a -> {
+
+                final Font font = a.getFont().orElse(Fonts.latoRegular(0.04 * size));
+
+                final double offset = PREFERRED_WIDTH * 0.28;// ((a.getValue() - MIN_VALUE) / DATA_RANGE) * RANGE + OFFSET +
+                                                             // (font.getSize() / 1.5);
+
+                overlayCtx.translate(0, -1 * offset);
+
+                overlayCtx.setFont(font);
+                overlayCtx.setFill(a.getFill().orElse(tile.getForegroundColor()));
+                overlayCtx.fillText(a.getText().get(), 0, size * 0.02);
+
+                overlayCtx.translate(0, offset);
+            });
+
+            overlayCtx.restore();
+        });
     }
 }

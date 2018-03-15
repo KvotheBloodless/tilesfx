@@ -90,6 +90,22 @@ public class Location {
 
             return list;
         }
+
+        public static CardinalDirection from(final double direction) {
+
+            if (direction >= N.from && direction < 360 || direction >= 0 && direction < N.to)
+                return N;
+
+            final List<CardinalDirection> cardinals = list();
+            cardinals.remove(N);
+
+            for (final CardinalDirection cardinal : cardinals)
+                if (direction >= cardinal.from && direction < cardinal.to)
+                    return cardinal;
+
+            throw new IllegalStateException(
+                    String.format("Could not determine %s from %f", CardinalDirection.class.getSimpleName(), direction));
+        }
     }
 
     private String name;

@@ -39,6 +39,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.DoublePropertyBase;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
@@ -390,17 +391,28 @@ public class ChartData implements Comparable<ChartData> {
 
     public static class Annotation {
 
-        private final String text;
+        private final Optional<String> text;
         private final double value;
         private final Optional<Font> font;
         private final Optional<Color> fill;
+        private final Optional<Node> graphic;
 
-        protected Annotation(final String text, final double value, final Optional<Font> font, final Optional<Color> fill) {
+        protected Annotation(final double value, final Optional<Node> graphic, final Optional<Color> fill) {
+
+            this.text = Optional.empty();
+            this.value = value;
+            this.font = Optional.empty();
+            this.fill = Optional.empty();
+            this.graphic = graphic;
+        }
+
+        protected Annotation(final double value, final Optional<String> text, final Optional<Font> font, final Optional<Color> fill) {
 
             this.text = text;
             this.value = value;
             this.font = font;
             this.fill = fill;
+            this.graphic = Optional.empty();
         }
 
         public Optional<Font> getFont() {
@@ -408,7 +420,7 @@ public class ChartData implements Comparable<ChartData> {
             return font;
         }
 
-        public String getText() {
+        public Optional<String> getText() {
 
             return text;
         }
@@ -426,6 +438,11 @@ public class ChartData implements Comparable<ChartData> {
         public static Builder builder() {
 
             return new Builder();
+        }
+
+        public Optional<Node> getGraphic() {
+
+            return graphic;
         }
 
         @Override
@@ -453,6 +470,7 @@ public class ChartData implements Comparable<ChartData> {
             private Double value;
             private Font font;
             private Color fill;
+            private Node graphic;
 
             public Builder text(final String text) {
 
@@ -478,16 +496,26 @@ public class ChartData implements Comparable<ChartData> {
                 return this;
             }
 
+            public Builder graphic(final Node graphic) {
+
+                this.graphic = graphic;
+                return this;
+            }
+
             public Annotation build() {
 
                 validate();
-                return new Annotation(text, value, Optional.ofNullable(font), Optional.ofNullable(fill));
+
+                if (graphic == null)
+                    return new Annotation(value, Optional.of(text), Optional.ofNullable(font), Optional.ofNullable(fill));
+                else
+                    return new Annotation(value, Optional.of(graphic), Optional.ofNullable(fill));
             }
 
             private void validate() throws IllegalStateException {
 
-                if (text == null)
-                    throw new IllegalStateException("text is required");
+                if (text == null && graphic == null)
+                    throw new IllegalStateException("either text or graphic is required");
 
                 if (value == null)
                     throw new IllegalStateException("value is required");

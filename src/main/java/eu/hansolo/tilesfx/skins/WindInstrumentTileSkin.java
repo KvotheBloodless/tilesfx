@@ -94,7 +94,7 @@ public class WindInstrumentTileSkin extends TileSkin {
         formatString = new StringBuilder("%.").append(Integer.toString(tile.getDecimals())).append("f").toString();
         locale = tile.getLocale();
 
-        overlayCanvas = new Canvas(PREFERRED_WIDTH, PREFERRED_HEIGHT);
+        overlayCanvas = new Canvas(tile.getPrefWidth(), tile.getPrefHeight());
         overlayCtx = overlayCanvas.getGraphicsContext2D();
 
         graphicListener = (o, ov, nv) -> {
@@ -144,38 +144,40 @@ public class WindInstrumentTileSkin extends TileSkin {
         text.setFill(tile.getTextColor());
         enableNode(text, tile.isTextVisible());
 
-        barBackground = new Arc(PREFERRED_WIDTH * 0.5, PREFERRED_HEIGHT * 0.5, PREFERRED_WIDTH * 0.468, PREFERRED_HEIGHT * 0.468, 90, 360);
+        barBackground = new Arc(tile.getPrefWidth() * 0.5, tile.getPrefHeight() * 0.5, tile.getPrefWidth() * 0.468,
+                tile.getPrefHeight() * 0.468, 90, 360);
         barBackground.setType(ArcType.OPEN);
         barBackground.setStroke(tile.getBarBackgroundColor());
-        barBackground.setStrokeWidth(PREFERRED_WIDTH * 0.1);
+        barBackground.setStrokeWidth(tile.getPrefWidth() * 0.1);
         barBackground.setStrokeLineCap(StrokeLineCap.BUTT);
         barBackground.setFill(null);
 
-        bar = new Arc(PREFERRED_WIDTH * 0.5, PREFERRED_HEIGHT * 0.5, PREFERRED_WIDTH * 0.468, PREFERRED_HEIGHT * 0.468, 90, 0);
+        bar = new Arc(tile.getPrefWidth() * 0.5, tile.getPrefHeight() * 0.5, tile.getPrefWidth() * 0.468,
+                tile.getPrefHeight() * 0.468, 90, 0);
         bar.setType(ArcType.OPEN);
         bar.setStroke(tile.getBarColor());
-        bar.setStrokeWidth(PREFERRED_WIDTH * 0.1);
+        bar.setStrokeWidth(tile.getPrefWidth() * 0.1);
         bar.setStrokeLineCap(StrokeLineCap.BUTT);
         bar.setFill(null);
 
-        separator = new Line(PREFERRED_WIDTH * 0.5, 1, PREFERRED_WIDTH * 0.5, 0.16667 * PREFERRED_HEIGHT);
+        separator = new Line(tile.getPrefWidth() * 0.5, 1, tile.getPrefWidth() * 0.5, 0.16667 * tile.getPrefHeight());
         separator.setStroke(tile.getBackgroundColor());
         separator.setFill(Color.TRANSPARENT);
 
         windSpeedText = new Text(String.format(locale, formatString, tile.getCurrentValue()));
-        windSpeedText.setFont(Fonts.latoRegular(PREFERRED_WIDTH * 0.27333));
+        windSpeedText.setFont(Fonts.latoRegular(tile.getPrefWidth() * 0.27333));
         windSpeedText.setFill(tile.getValueColor());
         windSpeedText.setTextOrigin(VPos.CENTER);
 
         windSpeedUnitText = new Text(tile.getUnit());
-        windSpeedUnitText.setFont(Fonts.latoLight(PREFERRED_WIDTH * 0.08));
+        windSpeedUnitText.setFont(Fonts.latoLight(tile.getPrefWidth() * 0.08));
         windSpeedUnitText.setFill(tile.getUnitColor());
 
         windSpeedFlow = new TextFlow(windSpeedText, windSpeedUnitText);
         windSpeedFlow.setTextAlignment(TextAlignment.CENTER);
 
         valueText = new Text("N");
-        valueText.setFont(Fonts.latoRegular(PREFERRED_WIDTH * 0.27333));
+        valueText.setFont(Fonts.latoRegular(tile.getPrefWidth() * 0.27333));
         valueText.setFill(tile.getValueColor());
         valueText.setTextOrigin(VPos.CENTER);
         enableNode(valueText, tile.isValueVisible());
@@ -454,8 +456,7 @@ public class WindInstrumentTileSkin extends TileSkin {
 
                 final Font font = a.getFont().orElse(Fonts.latoRegular(0.04 * size));
 
-                final double offset = PREFERRED_WIDTH * 0.28;// ((a.getValue() - MIN_VALUE) / DATA_RANGE) * RANGE + OFFSET +
-                                                             // (font.getSize() / 1.5);
+                final double offset = tile.getPrefWidth() * 0.380;
 
                 overlayCtx.translate(0, -1 * offset);
 

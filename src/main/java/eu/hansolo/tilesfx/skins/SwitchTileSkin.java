@@ -26,39 +26,38 @@ import javafx.animation.Timeline;
 import javafx.beans.InvalidationListener;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
-import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
-
 /**
  * Created by hansolo on 19.12.16.
  */
 public class SwitchTileSkin extends TileSkin {
-    private static final SwitchEvent SWITCH_PRESSED  = new SwitchEvent(SwitchEvent.SWITCH_PRESSED);
-    private static final SwitchEvent SWITCH_RELEASED = new SwitchEvent(SwitchEvent.SWITCH_RELEASED);
-    private Text                     titleText;
-    private Text                     text;
-    private Label                    description;
-    private Rectangle                switchBorder;
-    private Rectangle                switchBackground;
-    private Circle                   thumb;
-    private Timeline                 timeline;
-    private EventHandler<MouseEvent> mouseEventHandler;
-    private InvalidationListener     selectedListener;
 
+    private static final SwitchEvent SWITCH_PRESSED = new SwitchEvent(SwitchEvent.SWITCH_PRESSED);
+    private static final SwitchEvent SWITCH_RELEASED = new SwitchEvent(SwitchEvent.SWITCH_RELEASED);
+    private Text titleText;
+    private Text text;
+    private Rectangle switchBorder;
+    private Rectangle switchBackground;
+    private Circle thumb;
+    private Timeline timeline;
+    private EventHandler<MouseEvent> mouseEventHandler;
+    private InvalidationListener selectedListener;
 
     // ******************** Constructors **************************************
     public SwitchTileSkin(final Tile TILE) {
+
         super(TILE);
     }
 
-
     // ******************** Initialization ************************************
-    @Override protected void initGraphics() {
+    @Override
+    protected void initGraphics() {
+
         super.initGraphics();
 
         mouseEventHandler = e -> {
@@ -66,7 +65,7 @@ public class SwitchTileSkin extends TileSkin {
             if (MouseEvent.MOUSE_PRESSED == TYPE) {
                 tile.setActive(!tile.isActive());
                 tile.fireEvent(SWITCH_PRESSED);
-            } else if(MouseEvent.MOUSE_RELEASED == TYPE) {
+            } else if (MouseEvent.MOUSE_RELEASED == TYPE) {
                 tile.fireEvent(SWITCH_RELEASED);
             }
         };
@@ -82,12 +81,6 @@ public class SwitchTileSkin extends TileSkin {
         text.setFill(tile.getUnitColor());
         Helper.enableNode(text, tile.isTextVisible());
 
-        description = new Label(tile.getDescription());
-        description.setAlignment(tile.getDescriptionAlignment());
-        description.setWrapText(true);
-        description.setTextFill(tile.getTextColor());
-        Helper.enableNode(description, !tile.getDescription().isEmpty());
-
         switchBorder = new Rectangle();
 
         switchBackground = new Rectangle();
@@ -98,32 +91,36 @@ public class SwitchTileSkin extends TileSkin {
         thumb.setMouseTransparent(true);
         thumb.setEffect(shadow);
 
-        getPane().getChildren().addAll(titleText, text, description, switchBorder, switchBackground, thumb);
+        getPane().getChildren().addAll(titleText, text, switchBorder, switchBackground, thumb);
     }
 
-    @Override protected void registerListeners() {
+    @Override
+    protected void registerListeners() {
+
         super.registerListeners();
         switchBorder.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEventHandler);
         switchBorder.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseEventHandler);
         tile.activeProperty().addListener(selectedListener);
     }
 
-
     // ******************** Methods *******************************************
-    @Override protected void handleEvents(final String EVENT_TYPE) {
+    @Override
+    protected void handleEvents(final String EVENT_TYPE) {
+
         super.handleEvents(EVENT_TYPE);
 
         if ("VISIBILITY".equals(EVENT_TYPE)) {
             Helper.enableNode(titleText, !tile.getTitle().isEmpty());
             Helper.enableNode(text, tile.isTextVisible());
-            Helper.enableNode(description, !tile.getDescription().isEmpty());
         }
     }
 
     private void moveThumb() {
-        KeyValue thumbLeftX                 = new KeyValue(thumb.centerXProperty(), switchBackground.getLayoutX() + size * 0.1);
-        KeyValue thumbRightX                = new KeyValue(thumb.centerXProperty(), switchBackground.getLayoutX() + switchBackground.getWidth() - size * 0.1);
-        KeyValue switchBackgroundLeftColor  = new KeyValue(switchBackground.fillProperty(), tile.getBackgroundColor());
+
+        KeyValue thumbLeftX = new KeyValue(thumb.centerXProperty(), switchBackground.getLayoutX() + size * 0.1);
+        KeyValue thumbRightX =
+                new KeyValue(thumb.centerXProperty(), switchBackground.getLayoutX() + switchBackground.getWidth() - size * 0.1);
+        KeyValue switchBackgroundLeftColor = new KeyValue(switchBackground.fillProperty(), tile.getBackgroundColor());
         KeyValue switchBackgroundRightColor = new KeyValue(switchBackground.fillProperty(), tile.getActiveColor());
         if (tile.isActive()) {
             // move thumb from left to the right
@@ -139,80 +136,98 @@ public class SwitchTileSkin extends TileSkin {
         timeline.play();
     }
 
-    @Override public void dispose() {
+    @Override
+    public void dispose() {
+
         switchBorder.removeEventHandler(MouseEvent.MOUSE_PRESSED, mouseEventHandler);
         switchBorder.removeEventHandler(MouseEvent.MOUSE_RELEASED, mouseEventHandler);
         tile.activeProperty().removeListener(selectedListener);
         super.dispose();
     }
 
-
     // ******************** Resizing ******************************************
-    @Override protected void resizeStaticText() {
+    @Override
+    protected void resizeStaticText() {
+
         double maxWidth = width - size * 0.1;
         double fontSize = size * textSize.factor;
 
-        titleText.setFont(Fonts.latoRegular(fontSize));
-        if (titleText.getLayoutBounds().getWidth() > maxWidth) { Helper.adjustTextSize(titleText, maxWidth, fontSize); }
-        switch(tile.getTitleAlignment()) {
-            default    :
-            case LEFT  : titleText.relocate(size * 0.05, size * 0.05); break;
-            case CENTER: titleText.relocate((width - titleText.getLayoutBounds().getWidth()) * 0.5, size * 0.05); break;
-            case RIGHT : titleText.relocate(width - (size * 0.05) - titleText.getLayoutBounds().getWidth(), size * 0.05); break;
+        if (tile.isCustomFontEnabled() && tile.getCustomFont() != null) {
+            titleText.setFont(tile.getCustomFont());
+        } else
+            titleText.setFont(Fonts.latoRegular(fontSize));
+        if (titleText.getLayoutBounds().getWidth() > maxWidth) {
+            Helper.adjustTextSize(titleText, maxWidth, fontSize);
+        }
+        switch (tile.getTitleAlignment()) {
+            default:
+            case LEFT:
+                titleText.relocate(size * 0.05, size * 0.05);
+                break;
+            case CENTER:
+                titleText.relocate((width - titleText.getLayoutBounds().getWidth()) * 0.5, size * 0.05);
+                break;
+            case RIGHT:
+                titleText.relocate(width - (size * 0.05) - titleText.getLayoutBounds().getWidth(), size * 0.05);
+                break;
         }
 
         fontSize = size * textSize.factor;
         text.setText(tile.getText());
         text.setFont(Fonts.latoRegular(fontSize));
-        if (text.getLayoutBounds().getWidth() > maxWidth) { Helper.adjustTextSize(text, maxWidth, fontSize); }
-        switch(tile.getTextAlignment()) {
-            default    :
-            case LEFT  : text.setX(size * 0.05); break;
-            case CENTER: text.setX((width - text.getLayoutBounds().getWidth()) * 0.5); break;
-            case RIGHT : text.setX(width - (size * 0.05) - text.getLayoutBounds().getWidth()); break;
+        if (text.getLayoutBounds().getWidth() > maxWidth) {
+            Helper.adjustTextSize(text, maxWidth, fontSize);
+        }
+        switch (tile.getTextAlignment()) {
+            default:
+            case LEFT:
+                text.setX(size * 0.05);
+                break;
+            case CENTER:
+                text.setX((width - text.getLayoutBounds().getWidth()) * 0.5);
+                break;
+            case RIGHT:
+                text.setX(width - (size * 0.05) - text.getLayoutBounds().getWidth());
+                break;
         }
         text.setY(height - size * 0.05);
-
-        fontSize = size * 0.1;
-        description.setFont(Fonts.latoRegular(fontSize));
     }
 
-    @Override protected void resize() {
-        super.resize();
+    @Override
+    protected void resize() {
 
-        description.setPrefSize(contentBounds.getWidth(), size * 0.43);
-        description.relocate(contentBounds.getX(), height * 0.42);
+        super.resize();
 
         switchBorder.setWidth(size * 0.445);
         switchBorder.setHeight(size * 0.22);
         switchBorder.setArcWidth(size * 0.22);
         switchBorder.setArcHeight(size * 0.22);
-        switchBorder.relocate((width - switchBorder.getWidth()) * 0.5, tile.getDescription().isEmpty() ? (height - switchBorder.getHeight()) * 0.5 : height - size * 0.40);
+        switchBorder.relocate((width - switchBorder.getWidth()) * 0.5, (height - switchBorder.getHeight()) * 0.65);
 
         switchBackground.setWidth(size * 0.425);
         switchBackground.setHeight(size * 0.2);
         switchBackground.setArcWidth(size * 0.2);
         switchBackground.setArcHeight(size * 0.2);
-        switchBackground.relocate((width - switchBackground.getWidth()) * 0.5, tile.getDescription().isEmpty() ? (height - switchBackground.getHeight()) * 0.5 : height - size * 0.39);
+        switchBackground.relocate((width - switchBackground.getWidth()) * 0.5, (height - switchBackground.getHeight()) * 0.65);
 
         thumb.setRadius(size * 0.09);
         thumb.setCenterX(tile.isActive() ? width * 0.6125 : width * 0.3875);
-        thumb.setCenterX(tile.isActive() ? switchBackground.getLayoutX() + switchBackground.getWidth() - size * 0.1 : switchBackground.getLayoutX() + size * 0.1);
-        thumb.setCenterY(tile.getDescription().isEmpty() ? height * 0.5 : height - size * 0.29);
+        thumb.setCenterX(tile.isActive() ? switchBackground.getLayoutX() + switchBackground.getWidth() - size * 0.1
+                : switchBackground.getLayoutX() + size * 0.1);
+        thumb.setCenterY(height * 0.62);
     }
 
-    @Override protected void redraw() {
+    @Override
+    protected void redraw() {
+
         super.redraw();
         titleText.setText(tile.getTitle());
         text.setText(tile.getText());
-        description.setText(tile.getDescription());
-        description.setAlignment(tile.getDescriptionAlignment());
 
         resizeStaticText();
 
         titleText.setFill(tile.getTitleColor());
         text.setFill(tile.getTextColor());
-        description.setTextFill(tile.getDescriptionColor());
         switchBorder.setFill(tile.getForegroundColor());
         thumb.setFill(tile.getForegroundColor());
     }

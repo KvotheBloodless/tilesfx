@@ -43,6 +43,7 @@ public class SwitchTileSkin extends TileSkin {
     private Text text;
     private Rectangle switchBorder;
     private Rectangle switchBackground;
+    // private Text moreOptions;
     private Circle thumb;
     private Timeline timeline;
     private EventHandler<MouseEvent> mouseEventHandler;
@@ -91,7 +92,12 @@ public class SwitchTileSkin extends TileSkin {
         thumb.setMouseTransparent(true);
         thumb.setEffect(shadow);
 
-        getPane().getChildren().addAll(titleText, text, switchBorder, switchBackground, thumb);
+        // GlyphIcons icon = FontAwesomeIcon.LOCK;
+        // moreOptions = new Text(icon.unicode());
+        // moreOptions.setFont(new Font(icon.fontFamily(), 15));
+        // moreOptions.setFill(tile.getUnitColor());
+
+        getPane().getChildren().addAll(titleText, text, switchBorder, switchBackground, thumb/* , moreOptions */);
     }
 
     @Override
@@ -191,6 +197,9 @@ public class SwitchTileSkin extends TileSkin {
                 break;
         }
         text.setY(height - size * 0.05);
+
+        // moreOptions.relocate((width - moreOptions.getLayoutBounds().getWidth()) * 0.9,
+        // (height - moreOptions.getLayoutBounds().getHeight()) * 0.65);
     }
 
     @Override
@@ -215,6 +224,7 @@ public class SwitchTileSkin extends TileSkin {
         thumb.setCenterX(tile.isActive() ? switchBackground.getLayoutX() + switchBackground.getWidth() - size * 0.1
                 : switchBackground.getLayoutX() + size * 0.1);
         thumb.setCenterY(height * 0.62);
+
     }
 
     @Override

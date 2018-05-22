@@ -39,49 +39,50 @@ import javafx.util.Duration;
 
 import static eu.hansolo.tilesfx.tools.Helper.clamp;
 
-
 public class SwitchSliderTileSkin extends TileSkin {
-    private static final SwitchEvent SWITCH_PRESSED  = new SwitchEvent(SwitchEvent.SWITCH_PRESSED);
-    private static final SwitchEvent SWITCH_RELEASED = new SwitchEvent(SwitchEvent.SWITCH_RELEASED);
-    private final        TileEvent   VALUE_CHANGING  = new TileEvent(TileEvent.EventType.VALUE_CHANGING);
-    private final        TileEvent   VALUE_CHANGED   = new TileEvent(TileEvent.EventType.VALUE_CHANGED);
-    private Text                     titleText;
-    private Text                     text;
-    private Text                     valueText;
-    private Text                     unitText;
-    private TextFlow                 valueUnitFlow;
-    private Label                    description;
-    private Rectangle                switchBorder;
-    private Rectangle                switchBackground;
-    private Circle                   switchThumb;
-    private Circle                   thumb;
-    private Rectangle                barBackground;
-    private Rectangle                bar;
-    private Point2D                  dragStart;
-    private double                   centerX;
-    private double                   centerY;
-    private double                   formerThumbPos;
-    private double                   trackStart;
-    private double                   trackLength;
-    private Timeline                 timeline;
-    private EventHandler<MouseEvent> mouseEventHandler;
-    private InvalidationListener     selectedListener;
-    private InvalidationListener     valueListener;
 
+    private static final SwitchEvent SWITCH_PRESSED = new SwitchEvent(SwitchEvent.SWITCH_PRESSED);
+    private static final SwitchEvent SWITCH_RELEASED = new SwitchEvent(SwitchEvent.SWITCH_RELEASED);
+    private final TileEvent VALUE_CHANGING = new TileEvent(TileEvent.EventType.VALUE_CHANGING);
+    private final TileEvent VALUE_CHANGED = new TileEvent(TileEvent.EventType.VALUE_CHANGED);
+    private Text titleText;
+    private Text text;
+    private Text valueText;
+    private Text unitText;
+    private TextFlow valueUnitFlow;
+    private Label description;
+    private Rectangle switchBorder;
+    private Rectangle switchBackground;
+    private Circle switchThumb;
+    private Circle thumb;
+    private Rectangle barBackground;
+    private Rectangle bar;
+    private Point2D dragStart;
+    private double centerX;
+    private double centerY;
+    private double formerThumbPos;
+    private double trackStart;
+    private double trackLength;
+    private Timeline timeline;
+    private EventHandler<MouseEvent> mouseEventHandler;
+    private InvalidationListener selectedListener;
+    private InvalidationListener valueListener;
 
     // ******************** Constructors **************************************
     public SwitchSliderTileSkin(final Tile TILE) {
+
         super(TILE);
     }
 
-
     // ******************** Initialization ************************************
-    @Override protected void initGraphics() {
+    @Override
+    protected void initGraphics() {
+
         super.initGraphics();
 
         mouseEventHandler = e -> {
             final EventType TYPE = e.getEventType();
-            final Object    SRC  = e.getSource();
+            final Object SRC = e.getSource();
             if (MouseEvent.MOUSE_PRESSED == TYPE) {
                 if (SRC.equals(thumb)) {
                     dragStart = thumb.localToParent(e.getX(), e.getY());
@@ -93,7 +94,7 @@ public class SwitchSliderTileSkin extends TileSkin {
                 }
             } else if (MouseEvent.MOUSE_DRAGGED == TYPE) {
                 Point2D currentPos = thumb.localToParent(e.getX(), e.getY());
-                double  dragPos    = currentPos.getX() - dragStart.getX();
+                double dragPos = currentPos.getX() - dragStart.getX();
                 thumbDragged((formerThumbPos + dragPos / trackLength));
             } else if (MouseEvent.MOUSE_RELEASED == TYPE) {
                 if (SRC.equals(thumb)) {
@@ -103,8 +104,8 @@ public class SwitchSliderTileSkin extends TileSkin {
                 }
             }
         };
-        selectedListener  = o -> moveThumb();
-        valueListener     = o -> {
+        selectedListener = o -> moveThumb();
+        valueListener = o -> {
             if (tile.isActive() && tile.getValue() != tile.getMinValue()) {
                 thumb.setFill(tile.getBarColor());
             } else {
@@ -158,11 +159,13 @@ public class SwitchSliderTileSkin extends TileSkin {
         switchThumb.setEffect(shadow);
 
         getPane().getChildren().addAll(titleText, text, valueUnitFlow, description,
-                                       barBackground, bar, thumb,
-                                       switchBorder, switchBackground, switchThumb);
+                barBackground, bar, thumb,
+                switchBorder, switchBackground, switchThumb);
     }
 
-    @Override protected void registerListeners() {
+    @Override
+    protected void registerListeners() {
+
         super.registerListeners();
         thumb.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEventHandler);
         thumb.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseEventHandler);
@@ -176,9 +179,10 @@ public class SwitchSliderTileSkin extends TileSkin {
         tile.valueProperty().addListener(valueListener);
     }
 
-
     // ******************** Methods *******************************************
-    @Override protected void handleEvents(final String EVENT_TYPE) {
+    @Override
+    protected void handleEvents(final String EVENT_TYPE) {
+
         super.handleEvents(EVENT_TYPE);
 
         if ("VISIBILITY".equals(EVENT_TYPE)) {
@@ -191,9 +195,11 @@ public class SwitchSliderTileSkin extends TileSkin {
     }
 
     private void moveThumb() {
-        KeyValue switchThumbLeftX                 = new KeyValue(switchThumb.centerXProperty(), switchBackground.getLayoutX() + size * 0.05);
-        KeyValue switchThumbRightX                = new KeyValue(switchThumb.centerXProperty(), switchBackground.getLayoutX() + switchBackground.getWidth() - size * 0.05);
-        KeyValue switchBackgroundLeftColor  = new KeyValue(switchBackground.fillProperty(), tile.getBackgroundColor());
+
+        KeyValue switchThumbLeftX = new KeyValue(switchThumb.centerXProperty(), switchBackground.getLayoutX() + size * 0.05);
+        KeyValue switchThumbRightX =
+                new KeyValue(switchThumb.centerXProperty(), switchBackground.getLayoutX() + switchBackground.getWidth() - size * 0.05);
+        KeyValue switchBackgroundLeftColor = new KeyValue(switchBackground.fillProperty(), tile.getBackgroundColor());
         KeyValue switchBackgroundRightColor = new KeyValue(switchBackground.fillProperty(), tile.getActiveColor());
         if (tile.isActive()) {
             // move thumb from left to the right
@@ -209,7 +215,9 @@ public class SwitchSliderTileSkin extends TileSkin {
         timeline.play();
     }
 
-    @Override protected void handleCurrentValue(final double VALUE) {
+    @Override
+    protected void handleCurrentValue(final double VALUE) {
+
         valueText.setText(String.format(locale, formatString, VALUE));
         resizeDynamicText();
         centerX = trackStart + (trackLength * ((VALUE - minValue) / range));
@@ -219,10 +227,13 @@ public class SwitchSliderTileSkin extends TileSkin {
     }
 
     private void thumbDragged(final double POSITION) {
+
         tile.setValue(clamp(minValue, maxValue, (POSITION * range) + minValue));
     }
 
-    @Override public void dispose() {
+    @Override
+    public void dispose() {
+
         thumb.removeEventHandler(MouseEvent.MOUSE_PRESSED, mouseEventHandler);
         thumb.removeEventHandler(MouseEvent.MOUSE_DRAGGED, mouseEventHandler);
         thumb.removeEventHandler(MouseEvent.MOUSE_RELEASED, mouseEventHandler);
@@ -237,37 +248,59 @@ public class SwitchSliderTileSkin extends TileSkin {
         super.dispose();
     }
 
-
     // ******************** Resizing ******************************************
-    @Override protected void resizeDynamicText() {
+    @Override
+    protected void resizeDynamicText() {
+
         double maxWidth = unitText.isVisible() ? width - size * 0.275 : width - size * 0.1;
         double fontSize = size * 0.24;
         valueText.setFont(Fonts.latoRegular(fontSize));
-        if (valueText.getLayoutBounds().getWidth() > maxWidth) { Helper.adjustTextSize(valueText, maxWidth, fontSize); }
+        if (valueText.getLayoutBounds().getWidth() > maxWidth) {
+            Helper.adjustTextSize(valueText, maxWidth, fontSize);
+        }
     }
-    @Override protected void resizeStaticText() {
+
+    @Override
+    protected void resizeStaticText() {
+
         double maxWidth = width - size * 0.1;
         double fontSize = size * textSize.factor;
 
         titleText.setFont(Fonts.latoRegular(fontSize));
-        if (titleText.getLayoutBounds().getWidth() > maxWidth) { Helper.adjustTextSize(titleText, maxWidth, fontSize); }
-        switch(tile.getTitleAlignment()) {
-            default    :
-            case LEFT  : titleText.relocate(size * 0.05, size * 0.05); break;
-            case CENTER: titleText.relocate((width - titleText.getLayoutBounds().getWidth()) * 0.5, size * 0.05); break;
-            case RIGHT : titleText.relocate(width - (size * 0.05) - titleText.getLayoutBounds().getWidth(), size * 0.05); break;
+        if (titleText.getLayoutBounds().getWidth() > maxWidth) {
+            Helper.adjustTextSize(titleText, maxWidth, fontSize);
+        }
+        switch (tile.getTitleAlignment()) {
+            default:
+            case LEFT:
+                titleText.relocate(size * 0.05, size * 0.05);
+                break;
+            case CENTER:
+                titleText.relocate((width - titleText.getLayoutBounds().getWidth()) * 0.5, size * 0.05);
+                break;
+            case RIGHT:
+                titleText.relocate(width - (size * 0.05) - titleText.getLayoutBounds().getWidth(), size * 0.05);
+                break;
         }
 
-        //maxWidth = size * 0.9;
+        // maxWidth = size * 0.9;
         fontSize = size * textSize.factor;
         text.setText(tile.getText());
         text.setFont(Fonts.latoRegular(fontSize));
-        if (text.getLayoutBounds().getWidth() > maxWidth) { Helper.adjustTextSize(text, maxWidth, fontSize); }
-        switch(tile.getTextAlignment()) {
-            default    :
-            case LEFT  : text.setX(size * 0.05); break;
-            case CENTER: text.setX((width - text.getLayoutBounds().getWidth()) * 0.5); break;
-            case RIGHT : text.setX(width - (size * 0.05) - text.getLayoutBounds().getWidth()); break;
+        if (text.getLayoutBounds().getWidth() > maxWidth) {
+            Helper.adjustTextSize(text, maxWidth, fontSize);
+        }
+        switch (tile.getTextAlignment()) {
+            default:
+            case LEFT:
+                text.setX(size * 0.05);
+                break;
+            case CENTER:
+                text.setX((width - text.getLayoutBounds().getWidth()) * 0.5);
+                break;
+            case RIGHT:
+                text.setX(width - (size * 0.05) - text.getLayoutBounds().getWidth());
+                break;
         }
         text.setY(height - size * 0.05);
 
@@ -275,22 +308,26 @@ public class SwitchSliderTileSkin extends TileSkin {
         fontSize = size * 0.12;
         unitText.setText(tile.getUnit());
         unitText.setFont(Fonts.latoRegular(fontSize));
-        if (unitText.getLayoutBounds().getWidth() > maxWidth) { Helper.adjustTextSize(unitText, maxWidth, fontSize); }
+        if (unitText.getLayoutBounds().getWidth() > maxWidth) {
+            Helper.adjustTextSize(unitText, maxWidth, fontSize);
+        }
 
         fontSize = size * 0.1;
         description.setFont(Fonts.latoRegular(fontSize));
     }
 
-    @Override protected void resize() {
+    @Override
+    protected void resize() {
+
         super.resize();
 
         description.setPrefSize(contentBounds.getWidth(), size * 0.43);
         description.relocate(contentBounds.getX(), titleText.isVisible() ? height * 0.42 : height * 0.32);
 
-        trackStart  = size * 0.14;
+        trackStart = size * 0.14;
         trackLength = width - size * 0.28;
-        centerX     = trackStart + (trackLength * ((tile.getCurrentValue() - minValue) / range));
-        centerY     = height * 0.71;
+        centerX = trackStart + (trackLength * ((tile.getCurrentValue() - minValue) / range));
+        centerY = height * 0.71;
 
         thumb.setRadius(size * 0.09);
         thumb.setCenterX(centerX);
@@ -324,14 +361,17 @@ public class SwitchSliderTileSkin extends TileSkin {
 
         switchThumb.setRadius(size * 0.045);
         switchThumb.setCenterX(tile.isActive() ? width * 0.30625 : width * 0.19375);
-        switchThumb.setCenterX(tile.isActive() ? switchBackground.getLayoutX() + switchBackground.getWidth() - size * 0.05 : switchBackground.getLayoutX() + size * 0.05);
+        switchThumb.setCenterX(tile.isActive() ? switchBackground.getLayoutX() + switchBackground.getWidth() - size * 0.05
+                : switchBackground.getLayoutX() + size * 0.05);
         switchThumb.setCenterY(switchBackground.getLayoutY() + switchBackground.getLayoutBounds().getHeight() * 0.5);
 
         valueUnitFlow.setPrefWidth(width - size * 0.1);
         valueUnitFlow.relocate(contentBounds.getX(), contentBounds.getY());
     }
 
-    @Override protected void redraw() {
+    @Override
+    protected void redraw() {
+
         super.redraw();
         titleText.setText(tile.getTitle());
         text.setText(tile.getText());

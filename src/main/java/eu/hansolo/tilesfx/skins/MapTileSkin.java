@@ -68,11 +68,11 @@ public class MapTileSkin extends TileSkin {
             while (c.next()) {
                 if (c.wasPermutated()) {      // Get items that have been permutated in list
                     for (int i = c.getFrom(); i < c.getTo(); ++i) {
-                        updatePoi(tile.getPoiList().get(i));
+                        updatePoi(tile.getLightsList().get(i));
                     }
                 } else if (c.wasUpdated()) {  // Get items that have been updated in list
                     for (int i = c.getFrom(); i < c.getTo(); ++i) {
-                        updatePoi(tile.getPoiList().get(i));
+                        updatePoi(tile.getLightsList().get(i));
                     }
                 } else if (c.wasAdded()) {
                     c.getAddedSubList().forEach(poi -> addPoi(poi));
@@ -101,7 +101,7 @@ public class MapTileSkin extends TileSkin {
                 if (MapProvider.BW != tile.getMapProvider()) { changeMapProvider(tile.getMapProvider()); }
                 updateLocation();
                 updateLocationColor();
-                tile.getPoiList().forEach(poi -> addPoi(poi));
+                tile.getLightsList().forEach(poi -> addPoi(poi));
                 addTrack(tile.getTrack());
                 updateTrackColor();
             }
@@ -115,7 +115,7 @@ public class MapTileSkin extends TileSkin {
     @Override protected void registerListeners() {
         super.registerListeners();
         pane.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseHandler);
-        tile.getPoiList().addListener(poiListener);
+        tile.getLightsList().addListener(poiListener);
     }
     
 
@@ -141,7 +141,7 @@ public class MapTileSkin extends TileSkin {
     @Override public void dispose() {
         pane.removeEventHandler(MouseEvent.MOUSE_CLICKED, mouseHandler);
         tile.getCurrentLocation().removeLocationEventListener(locationListener);
-        tile.getPoiList().removeListener(poiListener);
+        tile.getLightsList().removeListener(poiListener);
         super.dispose();
     }
 

@@ -39,8 +39,7 @@ import eu.hansolo.tilesfx.events.TileEventListener;
 import eu.hansolo.tilesfx.events.TimeEventListener;
 import eu.hansolo.tilesfx.skins.BarChartItem;
 import eu.hansolo.tilesfx.skins.LeaderBoardItem;
-import eu.hansolo.tilesfx.tools.Country;
-import eu.hansolo.tilesfx.tools.CountryGroup;
+import eu.hansolo.tilesfx.tools.Boat;
 import eu.hansolo.tilesfx.tools.Location;
 import eu.hansolo.tilesfx.tools.TreeNode;
 import javafx.beans.InvalidationListener;
@@ -808,15 +807,15 @@ public class TileBuilder<B extends TileBuilder<B>> {
         return (B) this;
     }
 
-    public final B pointsOfInterest(final Location... LOCATIONS) {
+    public final B lights(final Location... LOCATIONS) {
 
         properties.put("poiArray", new SimpleObjectProperty(LOCATIONS));
         return (B) this;
     }
 
-    public final B pointsOfInterest(final List<Location> LOCATIONS) {
+    public final B lights(final List<Location> LOCATIONS) {
 
-        properties.put("poiList", new SimpleObjectProperty(LOCATIONS));
+        properties.put("lightsList", new SimpleObjectProperty(LOCATIONS));
         return (B) this;
     }
 
@@ -904,15 +903,9 @@ public class TileBuilder<B extends TileBuilder<B>> {
         return (B) this;
     }
 
-    public final B country(final Country COUNTRY) {
+    public final B boat(final Boat BOAT) {
 
-        properties.put("country", new SimpleObjectProperty(COUNTRY));
-        return (B) this;
-    }
-
-    public final B countryGroup(final CountryGroup COUNTRY_GROUP) {
-
-        properties.put("countryGroup", new SimpleObjectProperty(COUNTRY_GROUP));
+        properties.put("boat", new SimpleObjectProperty(BOAT));
         return (B) this;
     }
 
@@ -1228,7 +1221,7 @@ public class TileBuilder<B extends TileBuilder<B>> {
                     break;
                 case RADAR_CHART:
                     break;
-                case COUNTRY:
+                case LIGHTS_CONFIGURATION:
                     break;
                 case EPHEMERIS:
                     break;
@@ -1344,10 +1337,10 @@ public class TileBuilder<B extends TileBuilder<B>> {
         }
 
         if (properties.keySet().contains("poiArray")) {
-            CONTROL.setPoiLocations(((ObjectProperty<Location[]>) properties.get("poiArray")).get());
+            CONTROL.setLights(((ObjectProperty<Location[]>) properties.get("poiArray")).get());
         }
-        if (properties.keySet().contains("poiList")) {
-            CONTROL.setPoiList(((ObjectProperty<List<Location>>) properties.get("poiList")).get());
+        if (properties.keySet().contains("lightsList")) {
+            CONTROL.setLightsList(((ObjectProperty<List<Location>>) properties.get("lightsList")).get());
         }
 
         if (properties.keySet().contains("trackArray")) {
@@ -1603,10 +1596,8 @@ public class TileBuilder<B extends TileBuilder<B>> {
                 CONTROL.setRadarChartMode(((ObjectProperty<RadarChart.Mode>) properties.get(key)).get());
             } else if ("chartGridColor".equals(key)) {
                 CONTROL.setChartGridColor(((ObjectProperty<Color>) properties.get(key)).get());
-            } else if ("country".equals(key)) {
-                CONTROL.setCountry(((ObjectProperty<Country>) properties.get(key)).get());
-            } else if ("countryGroup".equals(key)) {
-                CONTROL.setCountryGroup(((ObjectProperty<CountryGroup>) properties.get(key)).get());
+            } else if ("boat".equals(key)) {
+                CONTROL.setBoat(((ObjectProperty<Boat>) properties.get(key)).get());
             } else if ("sortedData".equals(key)) {
                 CONTROL.setSortedData(((BooleanProperty) properties.get(key)).get());
             } else if ("flipTimeInMS".equals(key)) {

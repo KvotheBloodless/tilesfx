@@ -64,7 +64,6 @@ import eu.hansolo.tilesfx.skins.CalendarTileSkin;
 import eu.hansolo.tilesfx.skins.CharacterTileSkin;
 import eu.hansolo.tilesfx.skins.CircularProgressTileSkin;
 import eu.hansolo.tilesfx.skins.ClockTileSkin;
-import eu.hansolo.tilesfx.skins.CountryTileSkin;
 import eu.hansolo.tilesfx.skins.CustomTileSkin;
 import eu.hansolo.tilesfx.skins.DateTileSkin;
 import eu.hansolo.tilesfx.skins.DonutChartTileSkin;
@@ -75,6 +74,7 @@ import eu.hansolo.tilesfx.skins.GaugeTileSkin;
 import eu.hansolo.tilesfx.skins.HighLowTileSkin;
 import eu.hansolo.tilesfx.skins.LeaderBoardItem;
 import eu.hansolo.tilesfx.skins.LeaderBoardTileSkin;
+import eu.hansolo.tilesfx.skins.LightsConfigurationTileSkin;
 import eu.hansolo.tilesfx.skins.MapTileSkin;
 import eu.hansolo.tilesfx.skins.MatrixTileSkin;
 import eu.hansolo.tilesfx.skins.NumberTileSkin;
@@ -98,9 +98,8 @@ import eu.hansolo.tilesfx.skins.TimerControlTileSkin;
 import eu.hansolo.tilesfx.skins.WeatherTileSkin;
 import eu.hansolo.tilesfx.skins.WindInstrumentTileSkin;
 import eu.hansolo.tilesfx.skins.WorldMapTileSkin;
-import eu.hansolo.tilesfx.tools.Country;
-import eu.hansolo.tilesfx.tools.CountryGroup;
-import eu.hansolo.tilesfx.tools.CountryPath;
+import eu.hansolo.tilesfx.tools.Boat;
+import eu.hansolo.tilesfx.tools.BoatPath;
 import eu.hansolo.tilesfx.tools.Helper;
 import eu.hansolo.tilesfx.tools.Location;
 import eu.hansolo.tilesfx.tools.MovingAverage;
@@ -190,7 +189,7 @@ public class Tile extends Control {
         GAUGE_SPARK_LINE("GaugeSparkLine"),
         SMOOTH_AREA_CHART("SmoothAreaChartTileSkin"),
         RADAR_CHART("RadarChart"),
-        COUNTRY("Country"),
+        LIGHTS_CONFIGURATION("Lights"),
         EPHEMERIS("Ephemeris"),
         CHARACTER("Character"),
         FLIP("Flip"),
@@ -375,7 +374,7 @@ public class Tile extends Control {
     private ObjectProperty<Node> graphic;
     private Location _currentLocation;
     private ObjectProperty<Location> currentLocation;
-    private ObservableList<Location> poiList;
+    private ObservableList<Location> lightsList;
     private ObservableList<ChartData> chartDataList;
     private List<Location> track;
     private TileColor _trackColor;
@@ -557,10 +556,8 @@ public class Tile extends Control {
     private ObjectProperty<RadarChart.Mode> radarChartMode;
     private Color _chartGridColor;
     private ObjectProperty<Color> chartGridColor;
-    private Country _country;
-    private ObjectProperty<Country> country;
-    private CountryGroup _countryGroup;
-    private ObjectProperty<CountryGroup> countryGroup;
+    private Boat _boat;
+    private ObjectProperty<Boat> boat;
     private boolean _sortedData;
     private BooleanProperty sortedData;
     private boolean _dataPointsVisible;
@@ -2029,8 +2026,10 @@ public class Tile extends Control {
 
     public ObservableList<Series<String, Number>> getSeries() {
 
-        return getTilesFXSeries().stream().map(tilesFxSeries -> tilesFxSeries.getSeries()).collect(
-                Collectors.toCollection(FXCollections::observableArrayList));
+        return getTilesFXSeries().stream()
+                .map(tilesFxSeries -> tilesFxSeries.getSeries())
+                .collect(
+                        Collectors.toCollection(FXCollections::observableArrayList));
     }
 
     public void setSeries(final List<Series<String, Number>> SERIES) {
@@ -2306,46 +2305,46 @@ public class Tile extends Control {
         fireTileEvent(LOCATION_EVENT);
     }
 
-    public ObservableList<Location> getPoiList() {
+    public ObservableList<Location> getLightsList() {
 
-        if (null == poiList) {
-            poiList = FXCollections.observableArrayList();
+        if (null == lightsList) {
+            lightsList = FXCollections.observableArrayList();
         }
-        return poiList;
+        return lightsList;
     }
 
-    public void setPoiList(final List<Location> POI_LIST) {
+    public void setLightsList(final List<Location> LIGHTS_LIST) {
 
-        getPoiList().setAll(POI_LIST);
+        getLightsList().setAll(LIGHTS_LIST);
     }
 
-    public void setPoiLocations(final Location... LOCATIONS) {
+    public void setLights(final Location... LIGHTS) {
 
-        setPoiList(Arrays.asList(LOCATIONS));
+        setLightsList(Arrays.asList(LIGHTS));
     }
 
-    public void addPoiLocation(final Location LOCATION) {
+    public void addLight(final Location LIGHT) {
 
-        if (null == LOCATION)
+        if (null == LIGHT)
             return;
-        if (!getPoiList().contains(LOCATION)) {
-            getPoiList().add(LOCATION);
+        if (!getLightsList().contains(LIGHT)) {
+            getLightsList().add(LIGHT);
         }
         ;
     }
 
-    public void removePoiLocation(final Location LOCATION) {
+    public void removeLight(final Location LIGHT) {
 
-        if (null == LOCATION)
+        if (null == LIGHT)
             return;
-        if (getPoiList().contains(LOCATION)) {
-            getPoiList().remove(LOCATION);
+        if (getLightsList().contains(LIGHT)) {
+            getLightsList().remove(LIGHT);
         }
     }
 
-    public void clearPoiLocations() {
+    public void clearLights() {
 
-        getPoiList().clear();
+        getLightsList().clear();
         fireTileEvent(DATA_EVENT);
     }
 
@@ -6854,40 +6853,28 @@ public class Tile extends Control {
         return chartGridColor;
     }
 
-    /**
-     * Returns the Locale that will be used to visualize the country
-     * in the CountryTileSkin
-     * 
-     * @return the Locale that will be used to visualize the country in the CountryTileSkin
-     */
-    public Country getCountry() {
+    public Boat getBoat() {
 
-        if (null == _country && null == country) {
-            _country = Country.DE;
+        if (null == _boat && null == boat) {
+            _boat = Boat.SAILING;
         }
-        return null == country ? _country : country.get();
+        return null == boat ? _boat : boat.get();
     }
 
-    /**
-     * Defines the Locale that will be used to visualize the country
-     * in the CountryTileSkin
-     * 
-     * @param COUNTRY
-     */
-    public void setCountry(final Country COUNTRY) {
+    public void setBoat(final Boat BOAT) {
 
-        if (null == country) {
-            _country = COUNTRY;
+        if (null == boat) {
+            _boat = BOAT;
             fireTileEvent(RECALC_EVENT);
         } else {
-            country.set(COUNTRY);
+            boat.set(BOAT);
         }
     }
 
-    public ObjectProperty<Country> countryProperty() {
+    public ObjectProperty<Boat> boatProperty() {
 
-        if (null == country) {
-            country = new ObjectPropertyBase<Country>(_country) {
+        if (null == boat) {
+            boat = new ObjectPropertyBase<Boat>(_boat) {
 
                 @Override
                 protected void invalidated() {
@@ -6904,58 +6891,12 @@ public class Tile extends Control {
                 @Override
                 public String getName() {
 
-                    return "country";
+                    return "boat";
                 }
             };
-            _country = null;
+            _boat = null;
         }
-        return country;
-    }
-
-    public CountryGroup getCountryGroup() {
-
-        if (null == _countryGroup && null == countryGroup) {
-            _countryGroup = Helper.EU;
-        }
-        return null == countryGroup ? _countryGroup : countryGroup.get();
-    }
-
-    public void setCountryGroup(final CountryGroup GROUP) {
-
-        if (null == countryGroup) {
-            _countryGroup = GROUP;
-            fireTileEvent(RECALC_EVENT);
-        } else {
-            countryGroup.set(GROUP);
-        }
-    }
-
-    public ObjectProperty<CountryGroup> countryGroupProperty() {
-
-        if (null == countryGroup) {
-            countryGroup = new ObjectPropertyBase<CountryGroup>(_countryGroup) {
-
-                @Override
-                protected void invalidated() {
-
-                    fireTileEvent(RECALC_EVENT);
-                }
-
-                @Override
-                public Object getBean() {
-
-                    return Tile.this;
-                }
-
-                @Override
-                public String getName() {
-
-                    return "countryGroup";
-                }
-            };
-            _countryGroup = null;
-        }
-        return countryGroup;
+        return boat;
     }
 
     public boolean isSortedData() {
@@ -7305,14 +7246,9 @@ public class Tile extends Control {
         return customFont;
     }
 
-    /**
-     * Returns a list of path elements that define the countries
-     * 
-     * @return a list of path elements that define the countries
-     */
-    public Map<String, List<CountryPath>> getCountryPaths() {
+    public Map<String, List<BoatPath>> getBoatPaths() {
 
-        return Helper.getLoresCountryPaths();
+        return Helper.getLoresBoatPaths();
     }
 
     /**
@@ -7828,8 +7764,8 @@ public class Tile extends Control {
                 return new SmoothAreaChartTileSkin(Tile.this);
             case RADAR_CHART:
                 return new RadarChartTileSkin(Tile.this);
-            case COUNTRY:
-                return new CountryTileSkin(Tile.this);
+            case LIGHTS_CONFIGURATION:
+                return new LightsConfigurationTileSkin(Tile.this);
             case EPHEMERIS:
                 return new EphemerisTileSkin(Tile.this);
             case CHARACTER:
@@ -7955,7 +7891,7 @@ public class Tile extends Control {
                 break;
             case RADAR_CHART:
                 break;
-            case COUNTRY:
+            case LIGHTS_CONFIGURATION:
                 break;
             case EPHEMERIS:
                 break;
@@ -8074,8 +8010,8 @@ public class Tile extends Control {
             case RADAR_CHART:
                 setSkin(new RadarChartTileSkin(Tile.this));
                 break;
-            case COUNTRY:
-                setSkin(new CountryTileSkin(Tile.this));
+            case LIGHTS_CONFIGURATION:
+                setSkin(new LightsConfigurationTileSkin(Tile.this));
                 break;
             case EPHEMERIS:
                 setSkin(new EphemerisTileSkin(Tile.this));

@@ -16,31 +16,41 @@
 
 package eu.hansolo.tilesfx.tools;
 
-import javafx.scene.paint.Color;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.scene.paint.Color;
 
-public class CountryGroup {
-    private String        name;
-    private List<Country> countries;
+public class BoatGroup {
 
+    private String name;
+    private List<Boat> boats;
 
     // ******************** Constructors **************************************
-    public CountryGroup(final String NAME, final Country... COUNTRIES) {
-        name      = NAME;
-        countries = new ArrayList<>(COUNTRIES.length);
-        for (Country country : COUNTRIES) { countries.add(country); }
+    public BoatGroup(final String NAME, final Boat... BOATS) {
+
+        name = NAME;
+        boats = new ArrayList<>(BOATS.length);
+        for (Boat boat : BOATS) {
+            boats.add(boat);
+        }
     }
 
-
     // ******************** Methods *******************************************
-    public String getName() { return name; }
+    public String getName() {
 
-    public List<Country> getCountries() { return countries; }
+        return name;
+    }
+
+    public List<Boat> getBoats() {
+
+        return boats;
+    }
 
     public void setColor(final Color COLOR) {
-        for (Country country : getCountries()) { country.setColor(COLOR); }
+
+        for (Boat boat : getBoats()) {
+            boat.setColor(COLOR);
+        }
     }
 }

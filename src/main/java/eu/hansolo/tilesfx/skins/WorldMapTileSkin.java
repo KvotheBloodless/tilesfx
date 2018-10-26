@@ -16,8 +16,8 @@
 
 package eu.hansolo.tilesfx.skins;
 
-import eu.hansolo.tilesfx.tools.Country;
-import eu.hansolo.tilesfx.tools.CountryPath;
+import eu.hansolo.tilesfx.tools.Boat;
+import eu.hansolo.tilesfx.tools.BoatPath;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.Tile.TextSize;
 import eu.hansolo.tilesfx.chart.ChartData;
@@ -60,10 +60,10 @@ public class WorldMapTileSkin extends TileSkin {
     private                Text                                       text;
     private                Pane                                       worldPane;
     private                Group                                      group;
-    private                Map<String, List<CountryPath>>             countryPaths;
+    private                Map<String, List<BoatPath>>             boatPaths;
     private                ObservableMap<Location, Circle>            chartDataLocations;
     private                ObservableMap<Location, Circle>            poiLocations;
-    private                Map<CountryPath, EventHandler<MouseEvent>> handlerMap;
+    private                Map<BoatPath, EventHandler<MouseEvent>> handlerMap;
     private                ListChangeListener<Location>               poiListener;
     private                ListChangeListener<ChartData>              chartDataListener;
     private                Map<Circle, EventHandler<MouseEvent>>      circleHandlerMap;
@@ -85,7 +85,7 @@ public class WorldMapTileSkin extends TileSkin {
         handlerMap       = new HashMap<>();
         circleHandlerMap = new HashMap<>();
 
-        countryPaths = tile.getCountryPaths();
+        boatPaths = tile.getBoatPaths();
 
         String formatString = new StringBuilder("%.").append(tile.getDecimals()).append("f").toString();
 
@@ -142,7 +142,7 @@ public class WorldMapTileSkin extends TileSkin {
             resize();
         });
 
-        tile.getPoiList()
+        tile.getLightsList()
             .forEach(poi -> {
                 String tooltipText = new StringBuilder(poi.getName()).append("\n")
                                                                      .append(poi.getInfo())
@@ -178,10 +178,10 @@ public class WorldMapTileSkin extends TileSkin {
         Color stroke = tile.getBackgroundColor();
 
         worldPane = new Pane();
-        countryPaths.forEach((name, pathList) -> {
-            Country country = Country.valueOf(name);
+        boatPaths.forEach((name, pathList) -> {
+            Boat boat = Boat.valueOf(name);
             pathList.forEach(path -> {
-                path.setFill(null == country.getColor() ? fill : country.getColor());
+                path.setFill(null == boat.getColor() ? fill : boat.getColor());
                 path.setStroke(stroke);
                 path.setStrokeWidth(0.2);
             });
@@ -196,15 +196,15 @@ public class WorldMapTileSkin extends TileSkin {
 
     @Override protected void registerListeners() {
         super.registerListeners();
-        countryPaths.forEach((name , pathList) -> {
-            Country country = Country.valueOf(name);
-            EventHandler<MouseEvent> clickHandler = e -> tile.fireTileEvent(new TileEvent(EventType.SELECTED_CHART_DATA, new ChartData(country.getName(), country.getValue(), country.getColor())));
+        boatPaths.forEach((name , pathList) -> {
+            Boat boat = Boat.valueOf(name);
+            EventHandler<MouseEvent> clickHandler = e -> tile.fireTileEvent(new TileEvent(EventType.SELECTED_CHART_DATA, new ChartData(boat.getName(), boat.getValue(), boat.getColor())));
             pathList.forEach(path -> {
                 handlerMap.put(path, clickHandler);
                 path.addEventHandler(MouseEvent.MOUSE_PRESSED, clickHandler);
             });
         });
-        tile.getPoiList().addListener(poiListener);
+        tile.getLightsList().addListener(poiListener);
         tile.getChartData().addListener(chartDataListener);
     }
 
@@ -222,8 +222,8 @@ public class WorldMapTileSkin extends TileSkin {
     }
 
     @Override public void dispose() {
-        countryPaths.forEach((name, pathList) -> pathList.forEach(path -> path.removeEventHandler(MouseEvent.MOUSE_PRESSED, handlerMap.get(path))));
-        tile.getPoiList().removeListener(poiListener);
+        boatPaths.forEach((name, pathList) -> pathList.forEach(path -> path.removeEventHandler(MouseEvent.MOUSE_PRESSED, handlerMap.get(path))));
+        tile.getLightsList().removeListener(poiListener);
         tile.getChartData().removeListener(chartDataListener);
         handlerMap.clear();
         circleHandlerMap.clear();
@@ -231,14 +231,14 @@ public class WorldMapTileSkin extends TileSkin {
     }
 
     private void setFillAndStroke() {
-        countryPaths.keySet().forEach(name -> {
-            Country country = Country.valueOf(name);
-            setCountryFillAndStroke(country, null == country.getColor() ? tile.getForegroundColor() : country.getColor(), tile.getBackgroundColor());
+        boatPaths.keySet().forEach(name -> {
+            Boat boat = Boat.valueOf(name);
+            setBoatFillAndStroke(boat, null == boat.getColor() ? tile.getForegroundColor() : boat.getColor(), tile.getBackgroundColor());
         });
     }
-    private void setCountryFillAndStroke(final Country COUNTRY, final Color FILL, final Color STROKE) {
-        List<CountryPath> paths = countryPaths.get(COUNTRY.getName());
-        for (CountryPath path : paths) {
+    private void setBoatFillAndStroke(final Boat BOAT, final Color FILL, final Color STROKE) {
+        List<BoatPath> paths = boatPaths.get(BOAT.getName());
+        for (BoatPath path : paths) {
             path.setFill(FILL);
             path.setStroke(STROKE);
         }
@@ -336,10 +336,10 @@ public class WorldMapTileSkin extends TileSkin {
     private void refresh() {
         Color fill   = tile.getForegroundColor();
         Color stroke = tile.getBackgroundColor();
-        countryPaths.forEach((name, pathList) -> {
-            Country country = Country.valueOf(name);
+        boatPaths.forEach((name, pathList) -> {
+            Boat boat = Boat.valueOf(name);
             pathList.forEach(path -> {
-                path.setFill(null == country.getColor() ? fill : country.getColor());
+                path.setFill(null == boat.getColor() ? fill : boat.getColor());
                 path.setStroke(stroke);
                 path.setStrokeWidth(0.2);
             });

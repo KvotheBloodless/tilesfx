@@ -33,7 +33,7 @@ import eu.hansolo.tilesfx.chart.SunburstChart.TextOrientation;
 import eu.hansolo.tilesfx.chart.TilesFXSeries;
 import eu.hansolo.tilesfx.skins.BarChartItem;
 import eu.hansolo.tilesfx.skins.LeaderBoardItem;
-import eu.hansolo.tilesfx.tools.Country;
+import eu.hansolo.tilesfx.tools.Boat;
 import eu.hansolo.tilesfx.tools.FlowGridPane;
 import eu.hansolo.tilesfx.tools.Helper;
 import eu.hansolo.tilesfx.tools.Location;
@@ -125,7 +125,7 @@ public class Demo extends Application {
     private Tile radarChartTile1;
     private Tile radarChartTile2;
     private Tile smoothAreaChartTile;
-    private Tile countryTile;
+    private Tile navigationLightsTile;
     private Tile ephemerisTile;
     private Tile characterTile;
     private Tile flipTile;
@@ -178,7 +178,7 @@ public class Demo extends Application {
         series3.getData().add(new XYChart.Data("SU", 5));
 
         // WorldMap Data
-        for (int i = 0; i < Country.values().length; i++) {
+        for (int i = 0; i < Boat.values().length; i++) {
             double value = RND.nextInt(10);
             Color color;
             if (value > 8) {
@@ -192,7 +192,7 @@ public class Demo extends Application {
             } else {
                 color = Tile.BLUE;
             }
-            Country.values()[i].setColor(color);
+            Boat.values()[i].setColor(color);
         }
 
         // TimeControl Data
@@ -443,7 +443,7 @@ public class Demo extends Application {
                 .text("Some text")
                 .description("Description")
                 .currentLocation(new Location(51.91178, 7.63379, "Home", TileColor.MAGENTA.color))
-                .pointsOfInterest(new Location(51.914405, 7.635732, "POI 1", TileColor.RED.color),
+                .lights(new Location(51.914405, 7.635732, "POI 1", TileColor.RED.color),
                         new Location(51.912529, 7.631752, "POI 2", TileColor.BLUE.color),
                         new Location(51.923993, 7.628906, "POI 3", TileColor.YELLOW_ORANGE.color))
                 .mapProvider(MapProvider.TOPO)
@@ -577,14 +577,14 @@ public class Demo extends Application {
                 .animated(true)
                 .build();
 
-        countryTile = TileBuilder.create()
-                .skinType(SkinType.COUNTRY)
+        navigationLightsTile = TileBuilder.create()
+                .skinType(SkinType.LIGHTS_CONFIGURATION)
                 .prefSize(TILE_WIDTH, TILE_HEIGHT)
                 .minValue(0)
                 .maxValue(40)
                 .title("Country")
                 .unit("Unit")
-                .country(Country.DE)
+                .boat(Boat.SAILING)
                 .tooltipText("")
                 .animated(true)
                 .build();
@@ -746,7 +746,7 @@ public class Demo extends Application {
 
                     gaugeSparkLineTile.setValue(RND.nextDouble() * 100);
 
-                    countryTile.setValue(RND.nextDouble() * 100);
+                    navigationLightsTile.setValue(RND.nextDouble() * 100);
 
                     smoothChartData1.setValue(smoothChartData2.getValue());
                     smoothChartData2.setValue(smoothChartData3.getValue());
@@ -775,7 +775,7 @@ public class Demo extends Application {
                 barChartTile, customTile, leaderBoardTile, worldTile, mapTile,
                 radialChartTile, donutChartTile, circularProgressTile, stockTile,
                 gaugeSparkLineTile, radarChartTile1, radarChartTile2,
-                smoothAreaChartTile, countryTile, ephemerisTile, characterTile,
+                smoothAreaChartTile, navigationLightsTile, ephemerisTile, characterTile,
                 flipTile, switchSliderTile, dateTile, calendarTile, sunburstTile,
                 matrixTile, radialPercentageTile/* , weatherTile */);
 
@@ -803,8 +803,8 @@ public class Demo extends Application {
 
         timer.start();
 
-        mapTile.addPoiLocation(new Location(51.85, 7.75, "Test"));
-        mapTile.removePoiLocation(new Location(51.85, 7.75, "Test"));
+        mapTile.addLight(new Location(51.85, 7.75, "Test"));
+        mapTile.removeLight(new Location(51.85, 7.75, "Test"));
 
         radialPercentageTile.showNotifier(true);
     }

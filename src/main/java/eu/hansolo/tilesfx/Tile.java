@@ -7364,6 +7364,13 @@ public class Tile extends Control {
         return forecast;
     }
 
+    public void setForecast(final DailyDataPoint forecast, final String forecastTimezone) {
+
+        this.forecast = forecast;
+        this.forecastTimezone = forecastTimezone;
+        fireTileEvent(REDRAW_EVENT);
+    }
+
     public void setForecast(final DailyDataPoint forecast) {
 
         this.forecast = forecast;

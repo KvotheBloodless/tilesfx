@@ -30,33 +30,38 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 
-
 /**
  * Created by hansolo on 10.02.17.
  */
 public class FlowGridPane extends GridPane {
-    private boolean         internalCall;
-    private int             _noOfCols;
-    private int             _noOfRows;
+
+    private boolean internalCall;
+    private int _noOfCols;
+    private int _noOfRows;
     private IntegerProperty noOfCols;
     private IntegerProperty noOfRows;
 
-
     // ******************** Constructors **************************************
-    public FlowGridPane(final @NamedArg("NO_OF_COLS")int NO_OF_COLS, final @NamedArg("NO_OF_ROWS")int NO_OF_ROWS) {
+    public FlowGridPane(final @NamedArg("NO_OF_COLS") int NO_OF_COLS, final @NamedArg("NO_OF_ROWS") int NO_OF_ROWS) {
+
         this(NO_OF_COLS, NO_OF_ROWS, null);
     }
-    public FlowGridPane(final @NamedArg("NO_OF_COLS")int NO_OF_COLS, final @NamedArg("NO_OF_ROWS")int NO_OF_ROWS, final Node... NODES) {
+
+    public FlowGridPane(final @NamedArg("NO_OF_COLS") int NO_OF_COLS, final @NamedArg("NO_OF_ROWS") int NO_OF_ROWS, final Node... NODES) {
+
         super();
         internalCall = false;
-        _noOfCols    = NO_OF_COLS;
-        _noOfRows    = NO_OF_ROWS;
-        noOfCols     = new IntegerPropertyBase(NO_OF_COLS) {
-            @Override protected void invalidated() {
+        _noOfCols = NO_OF_COLS;
+        _noOfRows = NO_OF_ROWS;
+        noOfCols = new IntegerPropertyBase(NO_OF_COLS) {
+
+            @Override
+            protected void invalidated() {
+
                 ObservableList<ColumnConstraints> constraints = getColumnConstraints();
                 constraints.clear();
                 int cols = get();
-                for (int i = 0 ; i < cols ; ++i) {
+                for (int i = 0; i < cols; ++i) {
                     ColumnConstraints c = new ColumnConstraints();
                     c.setHalignment(HPos.CENTER);
                     c.setHgrow(Priority.ALWAYS);
@@ -65,18 +70,32 @@ public class FlowGridPane extends GridPane {
                 }
                 set(cols);
                 relayout();
-                if (internalCall) return;
+                if (internalCall)
+                    return;
                 _noOfCols = cols;
             }
-            @Override public Object getBean() { return FlowGridPane.this; }
-            @Override public String getName() { return "noOfCols"; }
+
+            @Override
+            public Object getBean() {
+
+                return FlowGridPane.this;
+            }
+
+            @Override
+            public String getName() {
+
+                return "noOfCols";
+            }
         };
-        noOfRows     = new IntegerPropertyBase(NO_OF_ROWS) {
-            @Override protected void invalidated() {
+        noOfRows = new IntegerPropertyBase(NO_OF_ROWS) {
+
+            @Override
+            protected void invalidated() {
+
                 ObservableList<RowConstraints> constraints = getRowConstraints();
                 constraints.clear();
                 int rows = get();
-                for (int i=0; i < rows; ++i) {
+                for (int i = 0; i < rows; ++i) {
                     RowConstraints r = new RowConstraints();
                     r.setValignment(VPos.CENTER);
                     r.setVgrow(Priority.ALWAYS);
@@ -85,42 +104,99 @@ public class FlowGridPane extends GridPane {
                 }
                 set(rows);
                 relayout();
-                if (internalCall) return;
+                if (internalCall)
+                    return;
                 _noOfRows = rows;
             }
-            @Override public Object getBean() { return FlowGridPane.this; }
-            @Override public String getName() { return "noOfRows"; }
+
+            @Override
+            public Object getBean() {
+
+                return FlowGridPane.this;
+            }
+
+            @Override
+            public String getName() {
+
+                return "noOfRows";
+            }
         };
         getChildren().addListener((ListChangeListener<Node>) change -> relayout());
         registerListeners();
-        if (null != NODES) { getChildren().setAll(NODES); }
+        if (null != NODES) {
+            getChildren().setAll(NODES);
+        }
     }
 
     private void registerListeners() {
+
         widthProperty().addListener(o -> checkAspectRatio());
         heightProperty().addListener(o -> checkAspectRatio());
     }
 
-
     // ******************** Methods *******************************************
-    public Integer getNoOfCols() { return noOfCols.get(); }
-    public void setNoOfCols(final Integer COLS) { noOfCols.set(COLS); }
-    public IntegerProperty noOfColsProperty() { return noOfCols; }
+    public Integer getNoOfCols() {
 
-    public Integer getNoOfRows() { return noOfRows.get(); }
-    public void setNoOfRows(final Integer ROWS) { noOfRows.set(ROWS); }
-    public IntegerProperty noOfRowsProperty() { return noOfRows; }
+        return noOfCols.get();
+    }
+
+    public void setNoOfCols(final Integer COLS) {
+
+        noOfCols.set(COLS);
+    }
+
+    public IntegerProperty noOfColsProperty() {
+
+        return noOfCols;
+    }
+
+    public Integer getNoOfRows() {
+
+        return noOfRows.get();
+    }
+
+    public void setNoOfRows(final Integer ROWS) {
+
+        noOfRows.set(ROWS);
+    }
+
+    public IntegerProperty noOfRowsProperty() {
+
+        return noOfRows;
+    }
 
     public void setNoOfColsAndNoOfRows(final int COLS, final int ROWS) {
+
         setNoOfCols(COLS);
         setNoOfRows(ROWS);
     }
 
-    private int coordsToOffset(final int COL, final int ROW) { return ROW * noOfCols.get() + COL; }
-    private int offsetToCol(final int OFFSET) { return OFFSET % noOfCols.get(); }
-    private int offsetToRow(final int OFFSET) { return OFFSET / noOfCols.get(); }
+    private int coordsToOffset(final int COL, final int ROW) {
+
+        if (noOfCols.get() == 0)
+            return 0;
+
+        return ROW * noOfCols.get() + COL;
+    }
+
+    private int offsetToCol(final int OFFSET) {
+
+        if (noOfCols.get() == 0)
+            return 0;
+
+        return OFFSET % noOfCols.get();
+    }
+
+    private int offsetToRow(final int OFFSET) {
+
+        if (noOfCols.get() == 0)
+            return 0;
+
+        return OFFSET / noOfCols.get();
+    }
 
     private void checkAspectRatio() {
+
         internalCall = true;
         if (getWidth() < getHeight()) {
             setNoOfColsAndNoOfRows(_noOfRows, _noOfCols);
@@ -132,14 +208,15 @@ public class FlowGridPane extends GridPane {
     }
 
     private void relayout() {
+
         ObservableList<Node> children = getChildren();
-        int    lastColSpan = 0;
-        int    lastRowSpan = 0;
-        for (Node child : children ) {
+        int lastColSpan = 0;
+        int lastRowSpan = 0;
+        for (Node child : children) {
             int offs = children.indexOf(child);
             GridPane.setConstraints(child, offsetToCol(offs + lastColSpan), offsetToRow(offs + lastRowSpan));
-            //lastColSpan = GridPane.getColumnSpan(child) == null ? 0 : GridPane.getColumnSpan(child);
-            //lastRowSpan = GridPane.getRowSpan(child) == null ? 0 : GridPane.getRowSpan(child);
+            // lastColSpan = GridPane.getColumnSpan(child) == null ? 0 : GridPane.getColumnSpan(child);
+            // lastRowSpan = GridPane.getRowSpan(child) == null ? 0 : GridPane.getRowSpan(child);
         }
     }
 }

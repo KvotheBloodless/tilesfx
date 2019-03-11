@@ -113,9 +113,10 @@ public class WindInstrumentTileSkin extends TileSkin {
             if (northAngle.isPresent()) {
 
                 double calculatedCardinal = e.getData().getValue() - northAngle.get();
-                if (calculatedCardinal < 0)
+
+                while (calculatedCardinal < 0)
                     calculatedCardinal += 360;
-                if (calculatedCardinal >= 360)
+                while (calculatedCardinal >= 360)
                     calculatedCardinal -= 360;
 
                 valueText.setText(Location.CardinalDirection.from(calculatedCardinal).name());
@@ -191,8 +192,9 @@ public class WindInstrumentTileSkin extends TileSkin {
         graphicContainer.setPrefSize(size * 0.9, tile.isTextVisible() ? size * 0.72 : size * 0.795);
         graphicContainer.getChildren().setAll(tile.getGraphic());
 
-        getPane().getChildren().addAll(barBackground, bar, separator, titleText, text, graphicContainer,
-                windSpeedFlow, valueUnitFlow, overlayCanvas);
+        getPane().getChildren()
+                .addAll(barBackground, bar, separator, titleText, text, graphicContainer,
+                        windSpeedFlow, valueUnitFlow, overlayCanvas);
     }
 
     @Override
@@ -204,8 +206,12 @@ public class WindInstrumentTileSkin extends TileSkin {
         tile.getChartData().stream().findFirst().ifPresent(chartData -> chartData.addChartDataEventListener(apparentAngleListener));
 
         // Second element is north cardinal
-        tile.getChartData().stream().skip(1).findFirst().ifPresent(
-                chartData -> chartData.addChartDataEventListener(northDirectionListener));
+        tile.getChartData()
+                .stream()
+                .skip(1)
+                .findFirst()
+                .ifPresent(
+                        chartData -> chartData.addChartDataEventListener(northDirectionListener));
 
         tile.getChartData().addListener(chartDataListener);
         tile.currentValueProperty().addListener(currentValueListener);

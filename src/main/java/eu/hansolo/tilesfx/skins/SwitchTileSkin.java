@@ -104,8 +104,12 @@ public class SwitchTileSkin extends TileSkin {
     protected void registerListeners() {
 
         super.registerListeners();
-        switchBorder.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEventHandler);
-        switchBorder.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseEventHandler);
+
+        // switchBorder.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEventHandler);
+        // switchBorder.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseEventHandler);
+        tile.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEventHandler);
+        tile.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseEventHandler);
+
         tile.activeProperty().addListener(selectedListener);
     }
 

@@ -37,212 +37,207 @@ import javafx.util.Duration;
  */
 public class SwitchTileSkin extends TileSkin {
 
-    private static final SwitchEvent SWITCH_PRESSED = new SwitchEvent(SwitchEvent.SWITCH_PRESSED);
-    private static final SwitchEvent SWITCH_RELEASED = new SwitchEvent(SwitchEvent.SWITCH_RELEASED);
-    private Text titleText;
-    private Text text;
-    private Rectangle switchBorder;
-    private Rectangle switchBackground;
-    // private Text moreOptions;
-    private Circle thumb;
-    private Timeline timeline;
-    private EventHandler<MouseEvent> mouseEventHandler;
-    private InvalidationListener selectedListener;
+	private static final SwitchEvent SWITCH_PRESSED = new SwitchEvent(SwitchEvent.SWITCH_PRESSED);
+	private static final SwitchEvent SWITCH_RELEASED = new SwitchEvent(SwitchEvent.SWITCH_RELEASED);
+	private Text titleText;
+	private Text text;
+	private Rectangle switchBorder;
+	private Rectangle switchBackground;
+	// private Text moreOptions;
+	private Circle thumb;
+	private Timeline timeline;
+	private EventHandler<MouseEvent> mouseEventHandler;
+	private InvalidationListener selectedListener;
 
-    // ******************** Constructors **************************************
-    public SwitchTileSkin(final Tile TILE) {
+	// ******************** Constructors **************************************
+	public SwitchTileSkin(final Tile TILE) {
 
-        super(TILE);
-    }
+		super(TILE);
+	}
 
-    // ******************** Initialization ************************************
-    @Override
-    protected void initGraphics() {
+	// ******************** Initialization ************************************
+	@Override
+	protected void initGraphics() {
 
-        super.initGraphics();
+		super.initGraphics();
 
-        mouseEventHandler = e -> {
-            final EventType TYPE = e.getEventType();
-            if (MouseEvent.MOUSE_PRESSED == TYPE) {
-                tile.setActive(!tile.isActive());
-                tile.fireEvent(SWITCH_PRESSED);
-            } else if (MouseEvent.MOUSE_RELEASED == TYPE) {
-                tile.fireEvent(SWITCH_RELEASED);
-            }
-        };
-        selectedListener = o -> moveThumb();
+		mouseEventHandler = e -> {
+			final EventType TYPE = e.getEventType();
+			if (MouseEvent.MOUSE_PRESSED == TYPE) {
+				tile.setActive(!tile.isActive());
+				tile.fireEvent(SWITCH_PRESSED);
+			} else if (MouseEvent.MOUSE_RELEASED == TYPE) {
+				tile.fireEvent(SWITCH_RELEASED);
+			}
+		};
+		selectedListener = o -> moveThumb();
 
-        timeline = new Timeline();
+		timeline = new Timeline();
 
-        titleText = new Text();
-        titleText.setFill(tile.getTitleColor());
-        Helper.enableNode(titleText, !tile.getTitle().isEmpty());
+		titleText = new Text();
+		titleText.setFill(tile.getTitleColor());
+		Helper.enableNode(titleText, !tile.getTitle().isEmpty());
 
-        text = new Text(tile.getText());
-        text.setFill(tile.getUnitColor());
-        Helper.enableNode(text, tile.isTextVisible());
+		text = new Text(tile.getText());
+		text.setFill(tile.getUnitColor());
+		Helper.enableNode(text, tile.isTextVisible());
 
-        switchBorder = new Rectangle();
+		switchBorder = new Rectangle();
 
-        switchBackground = new Rectangle();
-        switchBackground.setMouseTransparent(true);
-        switchBackground.setFill(tile.isActive() ? tile.getActiveColor() : tile.getBackgroundColor());
+		switchBackground = new Rectangle();
+		switchBackground.setMouseTransparent(true);
+		switchBackground.setFill(tile.isActive() ? tile.getActiveColor() : tile.getBackgroundColor());
 
-        thumb = new Circle();
-        thumb.setMouseTransparent(true);
-        thumb.setEffect(shadow);
+		thumb = new Circle();
+		thumb.setMouseTransparent(true);
+		thumb.setEffect(shadow);
 
-        // GlyphIcons icon = FontAwesomeIcon.LOCK;
-        // moreOptions = new Text(icon.unicode());
-        // moreOptions.setFont(new Font(icon.fontFamily(), 15));
-        // moreOptions.setFill(tile.getUnitColor());
+		getPane().getChildren().addAll(titleText, text, switchBorder, switchBackground, thumb/* , moreOptions */);
+	}
 
-        getPane().getChildren().addAll(titleText, text, switchBorder, switchBackground, thumb/* , moreOptions */);
-    }
+	@Override
+	protected void registerListeners() {
 
-    @Override
-    protected void registerListeners() {
+		super.registerListeners();
 
-        super.registerListeners();
+		tile.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEventHandler);
+		tile.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseEventHandler);
 
-        // switchBorder.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEventHandler);
-        // switchBorder.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseEventHandler);
-        tile.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEventHandler);
-        tile.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseEventHandler);
+		tile.activeProperty().addListener(selectedListener);
+	}
 
-        tile.activeProperty().addListener(selectedListener);
-    }
+	// ******************** Methods *******************************************
+	@Override
+	protected void handleEvents(final String EVENT_TYPE) {
 
-    // ******************** Methods *******************************************
-    @Override
-    protected void handleEvents(final String EVENT_TYPE) {
+		super.handleEvents(EVENT_TYPE);
 
-        super.handleEvents(EVENT_TYPE);
+		if ("VISIBILITY".equals(EVENT_TYPE)) {
+			Helper.enableNode(titleText, !tile.getTitle().isEmpty());
+			Helper.enableNode(text, tile.isTextVisible());
+		}
+	}
 
-        if ("VISIBILITY".equals(EVENT_TYPE)) {
-            Helper.enableNode(titleText, !tile.getTitle().isEmpty());
-            Helper.enableNode(text, tile.isTextVisible());
-        }
-    }
+	private void moveThumb() {
 
-    private void moveThumb() {
+		KeyValue thumbLeftX = new KeyValue(thumb.centerXProperty(), switchBackground.getLayoutX() + size * 0.1);
+		KeyValue thumbRightX = new KeyValue(thumb.centerXProperty(),
+				switchBackground.getLayoutX() + switchBackground.getWidth() - size * 0.1);
+		KeyValue switchBackgroundLeftColor = new KeyValue(switchBackground.fillProperty(), tile.getBackgroundColor());
+		KeyValue switchBackgroundRightColor = new KeyValue(switchBackground.fillProperty(), tile.getActiveColor());
+		if (tile.isActive()) {
+			// move thumb from left to the right
+			KeyFrame kf0 = new KeyFrame(Duration.ZERO, thumbLeftX, switchBackgroundLeftColor);
+			KeyFrame kf1 = new KeyFrame(Duration.millis(200), thumbRightX, switchBackgroundRightColor);
+			timeline.getKeyFrames().setAll(kf0, kf1);
+		} else {
+			// move thumb from right to the left
+			KeyFrame kf0 = new KeyFrame(Duration.ZERO, thumbRightX, switchBackgroundRightColor);
+			KeyFrame kf1 = new KeyFrame(Duration.millis(200), thumbLeftX, switchBackgroundLeftColor);
+			timeline.getKeyFrames().setAll(kf0, kf1);
+		}
+		timeline.play();
+	}
 
-        KeyValue thumbLeftX = new KeyValue(thumb.centerXProperty(), switchBackground.getLayoutX() + size * 0.1);
-        KeyValue thumbRightX =
-                new KeyValue(thumb.centerXProperty(), switchBackground.getLayoutX() + switchBackground.getWidth() - size * 0.1);
-        KeyValue switchBackgroundLeftColor = new KeyValue(switchBackground.fillProperty(), tile.getBackgroundColor());
-        KeyValue switchBackgroundRightColor = new KeyValue(switchBackground.fillProperty(), tile.getActiveColor());
-        if (tile.isActive()) {
-            // move thumb from left to the right
-            KeyFrame kf0 = new KeyFrame(Duration.ZERO, thumbLeftX, switchBackgroundLeftColor);
-            KeyFrame kf1 = new KeyFrame(Duration.millis(200), thumbRightX, switchBackgroundRightColor);
-            timeline.getKeyFrames().setAll(kf0, kf1);
-        } else {
-            // move thumb from right to the left
-            KeyFrame kf0 = new KeyFrame(Duration.ZERO, thumbRightX, switchBackgroundRightColor);
-            KeyFrame kf1 = new KeyFrame(Duration.millis(200), thumbLeftX, switchBackgroundLeftColor);
-            timeline.getKeyFrames().setAll(kf0, kf1);
-        }
-        timeline.play();
-    }
+	@Override
+	public void dispose() {
 
-    @Override
-    public void dispose() {
+		switchBorder.removeEventHandler(MouseEvent.MOUSE_PRESSED, mouseEventHandler);
+		switchBorder.removeEventHandler(MouseEvent.MOUSE_RELEASED, mouseEventHandler);
+		tile.activeProperty().removeListener(selectedListener);
+		super.dispose();
+	}
 
-        switchBorder.removeEventHandler(MouseEvent.MOUSE_PRESSED, mouseEventHandler);
-        switchBorder.removeEventHandler(MouseEvent.MOUSE_RELEASED, mouseEventHandler);
-        tile.activeProperty().removeListener(selectedListener);
-        super.dispose();
-    }
+	// ******************** Resizing ******************************************
+	@Override
+	protected void resizeStaticText() {
 
-    // ******************** Resizing ******************************************
-    @Override
-    protected void resizeStaticText() {
+		double maxWidth = width - size * 0.1;
+		double fontSize = size * textSize.factor;
 
-        double maxWidth = width - size * 0.1;
-        double fontSize = size * textSize.factor;
+		if (tile.isCustomFontEnabled() && tile.getCustomFont() != null) {
+			titleText.setFont(tile.getCustomFont());
+		} else
+			titleText.setFont(Fonts.latoRegular(fontSize));
+		if (titleText.getLayoutBounds().getWidth() > maxWidth) {
+			Helper.adjustTextSize(titleText, maxWidth, fontSize);
+		}
+		switch (tile.getTitleAlignment()) {
+		default:
+		case LEFT:
+			titleText.relocate(size * 0.05, size * 0.05);
+			break;
+		case CENTER:
+			titleText.relocate((width - titleText.getLayoutBounds().getWidth()) * 0.5, size * 0.05);
+			break;
+		case RIGHT:
+			titleText.relocate(width - (size * 0.05) - titleText.getLayoutBounds().getWidth(), size * 0.05);
+			break;
+		}
 
-        if (tile.isCustomFontEnabled() && tile.getCustomFont() != null) {
-            titleText.setFont(tile.getCustomFont());
-        } else
-            titleText.setFont(Fonts.latoRegular(fontSize));
-        if (titleText.getLayoutBounds().getWidth() > maxWidth) {
-            Helper.adjustTextSize(titleText, maxWidth, fontSize);
-        }
-        switch (tile.getTitleAlignment()) {
-            default:
-            case LEFT:
-                titleText.relocate(size * 0.05, size * 0.05);
-                break;
-            case CENTER:
-                titleText.relocate((width - titleText.getLayoutBounds().getWidth()) * 0.5, size * 0.05);
-                break;
-            case RIGHT:
-                titleText.relocate(width - (size * 0.05) - titleText.getLayoutBounds().getWidth(), size * 0.05);
-                break;
-        }
+		fontSize = size * textSize.factor * 1.5;
+		text.setText(tile.getText());
+		text.setFont(Fonts.latoRegular(fontSize));
+		if (text.getLayoutBounds().getWidth() > maxWidth) {
+			Helper.adjustTextSize(text, maxWidth, fontSize);
+		}
+		switch (tile.getTextAlignment()) {
+		default:
+		case LEFT:
+			text.setX(size * 0.05);
+			break;
+		case CENTER:
+			text.setX((width - text.getLayoutBounds().getWidth()) * 0.5);
+			break;
+		case RIGHT:
+			text.setX(width - (size * 0.05) - text.getLayoutBounds().getWidth());
+			break;
+		}
+		text.setY(height - size * 0.05);
 
-        fontSize = size * textSize.factor;
-        text.setText(tile.getText());
-        text.setFont(Fonts.latoRegular(fontSize));
-        if (text.getLayoutBounds().getWidth() > maxWidth) {
-            Helper.adjustTextSize(text, maxWidth, fontSize);
-        }
-        switch (tile.getTextAlignment()) {
-            default:
-            case LEFT:
-                text.setX(size * 0.05);
-                break;
-            case CENTER:
-                text.setX((width - text.getLayoutBounds().getWidth()) * 0.5);
-                break;
-            case RIGHT:
-                text.setX(width - (size * 0.05) - text.getLayoutBounds().getWidth());
-                break;
-        }
-        text.setY(height - size * 0.05);
+		// moreOptions.relocate((width - moreOptions.getLayoutBounds().getWidth()) *
+		// 0.9,
+		// (height - moreOptions.getLayoutBounds().getHeight()) * 0.65);
+	}
 
-        // moreOptions.relocate((width - moreOptions.getLayoutBounds().getWidth()) * 0.9,
-        // (height - moreOptions.getLayoutBounds().getHeight()) * 0.65);
-    }
+	@Override
+	protected void resize() {
 
-    @Override
-    protected void resize() {
+		super.resize();
 
-        super.resize();
+		switchBorder.setWidth(size * 0.445);
+		switchBorder.setHeight(size * 0.22);
+		switchBorder.setArcWidth(size * 0.22);
+		switchBorder.setArcHeight(size * 0.22);
+		switchBorder.relocate((width - switchBorder.getWidth()) * 0.5, (height - switchBorder.getHeight()) * 0.65);
 
-        switchBorder.setWidth(size * 0.445);
-        switchBorder.setHeight(size * 0.22);
-        switchBorder.setArcWidth(size * 0.22);
-        switchBorder.setArcHeight(size * 0.22);
-        switchBorder.relocate((width - switchBorder.getWidth()) * 0.5, (height - switchBorder.getHeight()) * 0.65);
+		switchBackground.setWidth(size * 0.425);
+		switchBackground.setHeight(size * 0.2);
+		switchBackground.setArcWidth(size * 0.2);
+		switchBackground.setArcHeight(size * 0.2);
+		switchBackground.relocate((width - switchBackground.getWidth()) * 0.5,
+				(height - switchBackground.getHeight()) * 0.65);
 
-        switchBackground.setWidth(size * 0.425);
-        switchBackground.setHeight(size * 0.2);
-        switchBackground.setArcWidth(size * 0.2);
-        switchBackground.setArcHeight(size * 0.2);
-        switchBackground.relocate((width - switchBackground.getWidth()) * 0.5, (height - switchBackground.getHeight()) * 0.65);
+		thumb.setRadius(size * 0.09);
+		thumb.setCenterX(tile.isActive() ? width * 0.6125 : width * 0.3875);
+		thumb.setCenterX(tile.isActive() ? switchBackground.getLayoutX() + switchBackground.getWidth() - size * 0.1
+				: switchBackground.getLayoutX() + size * 0.1);
+		thumb.setCenterY(height * 0.62);
 
-        thumb.setRadius(size * 0.09);
-        thumb.setCenterX(tile.isActive() ? width * 0.6125 : width * 0.3875);
-        thumb.setCenterX(tile.isActive() ? switchBackground.getLayoutX() + switchBackground.getWidth() - size * 0.1
-                : switchBackground.getLayoutX() + size * 0.1);
-        thumb.setCenterY(height * 0.62);
+	}
 
-    }
+	@Override
+	protected void redraw() {
 
-    @Override
-    protected void redraw() {
+		super.redraw();
+		titleText.setText(tile.getTitle());
+		text.setText(tile.getText());
 
-        super.redraw();
-        titleText.setText(tile.getTitle());
-        text.setText(tile.getText());
+		resizeStaticText();
 
-        resizeStaticText();
-
-        titleText.setFill(tile.getTitleColor());
-        text.setFill(tile.getTextColor());
-        switchBorder.setFill(tile.getForegroundColor());
-        thumb.setFill(tile.getForegroundColor());
-    }
+		titleText.setFill(tile.getTitleColor());
+		text.setFill(tile.getTextColor());
+		switchBorder.setFill(tile.getForegroundColor());
+		thumb.setFill(tile.getForegroundColor());
+	}
 }

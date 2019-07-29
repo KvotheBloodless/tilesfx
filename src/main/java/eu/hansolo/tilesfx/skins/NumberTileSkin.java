@@ -19,7 +19,6 @@ package eu.hansolo.tilesfx.skins;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.fonts.Fonts;
 import eu.hansolo.tilesfx.tools.Helper;
-import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;

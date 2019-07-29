@@ -16,6 +16,16 @@
 
 package eu.hansolo.tilesfx.skins;
 
+import static eu.hansolo.tilesfx.tools.Helper.clamp;
+import static eu.hansolo.tilesfx.tools.Helper.enableNode;
+
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+
 import eu.hansolo.tilesfx.Section;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.fonts.Fonts;
@@ -37,7 +47,6 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.CubicCurveTo;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
@@ -50,17 +59,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
-import javafx.util.Pair;
-
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-
-import static eu.hansolo.tilesfx.tools.Helper.clamp;
-import static eu.hansolo.tilesfx.tools.Helper.enableNode;
 
 
 /**

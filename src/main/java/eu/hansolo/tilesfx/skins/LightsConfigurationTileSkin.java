@@ -59,11 +59,7 @@ public class LightsConfigurationTileSkin extends TileSkin {
     private double boatMinY;
     private double boatMaxX;
     private double boatMaxY;
-    // private ObservableMap<Location, Circle> chartDataLocations;
     private ObservableMap<Location, Circle> poiLocations;
-    // private ListChangeListener<Location> poiListener;
-    // private ListChangeListener<ChartData> chartDataListener;
-    // private Map<Circle, EventHandler<MouseEvent>> circleHandlerMap;
 
     // ******************** Constructors **************************************
     public LightsConfigurationTileSkin(final Tile TILE) {
@@ -194,6 +190,23 @@ public class LightsConfigurationTileSkin extends TileSkin {
                 title.relocate(width - (size * 0.05) - title.getLayoutBounds().getWidth(), size * 0.05);
                 break;
         }
+
+        title.setFont(Fonts.latoRegular(fontSize));
+        if (title.getLayoutBounds().getWidth() > maxWidth) {
+            Helper.adjustTextSize(title, maxWidth, fontSize);
+        }
+        switch (tile.getTitleAlignment()) {
+            default:
+            case LEFT:
+                title.relocate(size * 0.05, size * 0.05);
+                break;
+            case CENTER:
+                title.relocate((width - title.getLayoutBounds().getWidth()) * 0.5, size * 0.05);
+                break;
+            case RIGHT:
+                title.relocate(width - (size * 0.05) - title.getLayoutBounds().getWidth(), size * 0.05);
+                break;
+        }
     }
 
     @Override
@@ -225,17 +238,6 @@ public class LightsConfigurationTileSkin extends TileSkin {
                 boatGroup.setScaleX(scaleFactor);
                 boatGroup.setScaleY(scaleFactor);
             }
-
-            /*
-             * poiLocations.forEach((location, circle) -> {
-             * double[] xy = Helper.latLonToXY(location.getLatitude(), location.getLongitude());
-             * double x = (xy[0] - countryMinX) * countryGroup.getScaleX() + countryGroup.getBoundsInParent().getMinX();
-             * double y = (xy[1] - countryMinY) * countryGroup.getScaleY() + countryGroup.getBoundsInParent().getMinY();
-             * circle.setCenterX(x);
-             * circle.setCenterY(y);
-             * circle.setRadius(size * 0.01);
-             * });
-             */
 
             resizeStaticText();
         }
